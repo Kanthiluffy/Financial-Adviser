@@ -28,9 +28,10 @@ router.post('/login', async (req, res) => {
     user.otpExpiresAt = Date.now() + 10 * 60 * 1000;  // OTP valid for 10 minutes
 
     await user.save();
-
+    console.log("IM here 1");
     // Send OTP
     await sendOTP(mobileNumber, otp);
+    console.log("IM here 2");
 
     res.status(200).json({ message: 'OTP sent successfully' });
   } catch (error) {

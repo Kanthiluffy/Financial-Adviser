@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
-import Login from './Login';
-import OTPVerify from './OTPVerify';
-import { useNavigate } from 'react-router-dom';
+import Login from './Login';  // Assuming Login is already created
+import OTPVerify from './OTPVerify';  // Assuming OTPVerify is already created
+import { useNavigate } from 'react-router-dom'; // Updated import
 
-const LoginFlow = () => {
+export default function LoginFlow() {
   const [mobileNumber, setMobileNumber] = useState('');
   const [step, setStep] = useState('login');
-  const navigate = useNavigate();  // Use useNavigate instead of useHistory
+  const navigate = useNavigate(); // Use useNavigate instead of useHistory
 
-  // Handle OTP sent - move to the OTP verification step
+  // When OTP is sent, switch to OTP verification step
   const handleOtpSent = (mobile) => {
     setMobileNumber(mobile);
     setStep('verify');
   };
 
-  // Handle successful login - redirect based on admin status
+  // On successful login, redirect to dashboard based on admin status
   const handleLoginSuccess = (isAdmin) => {
     if (isAdmin) {
-      navigate('/admin-dashboard');  // Navigate to the admin dashboard
+      navigate('/user-dashboard'); // Use navigate to redirect
     } else {
-      navigate('/user-dashboard');   // Navigate to the user dashboard
+      navigate('/user-dashboard'); // Use navigate to redirect
     }
   };
 
@@ -32,6 +32,4 @@ const LoginFlow = () => {
       )}
     </div>
   );
-};
-
-export default LoginFlow;
+}

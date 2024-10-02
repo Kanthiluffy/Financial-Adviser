@@ -112,6 +112,29 @@ module.exports = router;
 
 
 
+// Endpoint to check if the user has completed the survey
+router.get('/status', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id; // Get the logged-in user's ID from the token
+
+    // Find the user's survey
+    const survey = await Survey.findOne({ user: userId });
+
+    if (survey) {
+      // User has completed the survey
+      return res.json({ completed: true, survey });
+    } else {
+      // User hasn't completed the survey
+      return res.json({ completed: false });
+    }
+  } catch (error) {
+    return res.status(500).json({ error: 'Error checking survey status' });
+  }
+});
+
+module.exports = router;
+
+
 
 // Get summary and advice based on survey data
 router.get('/summary', authMiddleware, async (req, res) => {
