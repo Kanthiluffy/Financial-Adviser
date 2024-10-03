@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Container, CssBaseline, Button, Breadcrumbs, Link, Typography } from '@mui/material';
+import { Box, Container, CssBaseline, Button, Breadcrumbs,GlobalStyles, ThemeProvider, Link, Typography } from '@mui/material';
 import axios from 'axios';
 
 // Import the section components
