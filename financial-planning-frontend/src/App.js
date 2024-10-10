@@ -4,24 +4,23 @@ import LoginFlow from './components/auth/LoginFlow';  // No curly braces for def
 import AdminDashboard from './components/dashboards/AdminDashboard';  // No curly braces for default exports
 import UserDashboard from './components/dashboards/UserDashboard';  // No curly braces for default exports
 import MainSurvey from './components/survey/MainSurvey';
-import { Container, CssBaseline } from '@mui/material';
-import Home from './pages/Home/Home'
-import Header from '../src/components/common/Header/Header'
-import Footer from '../src/components/common/Footer/Footer'
+// import Header from '../src/components/common/Header/Header'
+// import Footer from '../src/components/common/Footer/Footer'
+import LandingPage from './components/LandingPage'
 const App = () => {
   
   return (
     <Router>
-          <Header />
+          
 
       <Routes>
-        <Route path="/" element={<LoginFlow />} />
-        <Route path="/home" element={<Home/>}/>
+        <Route path="/login" element={<LoginFlow />} />
+        <Route path="/" element={<LandingPage/>}/>
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
         <Route path="/survey" element={<MainSurvey />} />
       </Routes>
-      <Footer />
+     
     </Router>
   );
 };

@@ -1,49 +1,19 @@
-import React from "react";
-import { Carousel } from "react-bootstrap";
-import sliderImg from "../../assets/images/slider/1.png";
-import sliderImg1 from "../../assets/images/slider/2.png";
-import "../Banner/banner.css"
+import React from 'react';
+import "./banner.css";
 
 const Banner = () => {
-  return (
-    <>
-      <section className="slider">
-        <Carousel variant="dark">
-          <Carousel.Item>
-            <img src={sliderImg} className="d-block w-100" alt="First slide" />
-            <Carousel.Caption>
-              <div className="slider_des">
-                <h5 className="heading">
-                  JOURNEY TO <span>EXPLORE WORLD</span>
-                </h5>
-                <p className="sub_text">
-                  Lorem Ipsum is simply dummy text of the printing and
-                  typesetting industry. Lorem Ipsum has been the industry's
-                  standard dummy text ever since the 1500s,
-                </p>
-              </div>
-            </Carousel.Caption>
-          </Carousel.Item>
-
-          <Carousel.Item>
-            <img src={sliderImg1} className="d-block w-100" alt="First slide" />
-            <Carousel.Caption>
-              <div className="slider_des">
-                <h5 className="heading">
-                  BEAUTIFUL PLACE <span>TO VISIT</span>
-                </h5>
-                <p className="sub_text">
-                  Lorem Ipsum is simply dummy text of the printing and
-                  typesetting industry. Lorem Ipsum has been the industry's
-                  standard dummy text ever since the 1500s,
-                </p>
-              </div>
-            </Carousel.Caption>
-          </Carousel.Item>
-        </Carousel>
-      </section>
-    </>
-  );
+    return (
+        <div className="landing-page">
+            <div className="text-section">
+                <h1 className="heading">Your Financial <span>Future</span> Starts Today</h1>
+                <p className="description">Plan your retirement with confidence and ease, guided by our expert advice tailored just for you.</p>
+                <a href="/survey" className="cta-btn">Get Started</a>
+            </div>
+            <div className="image-section">
+                <img src={require("../../assets/images/figma_pig-removebg-preview.png")} alt="Financial planning illustration" className="image" />
+            </div>
+        </div>
+    );
 };
 
 export default Banner;

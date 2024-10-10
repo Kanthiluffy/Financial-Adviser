@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Container, CssBaseline, TextField, Button, Typography } from '@mui/material';
 import axios from 'axios';
+import './OTPVerify.css'; // Import CSS file
 
 export default function OTPVerify({ mobileNumber, onLoginSuccess }) {
   const [otp, setOtp] = useState('');
@@ -8,9 +8,7 @@ export default function OTPVerify({ mobileNumber, onLoginSuccess }) {
 
   const handleVerify = async () => {
     try {
-      // Reset error message before making the request
-      setErrorMessage('');
-
+      setErrorMessage(''); // Reset error message before making the request
       console.log('Verifying OTP for mobile number:', mobileNumber);
 
       // Make an API call to verify OTP
@@ -19,97 +17,34 @@ export default function OTPVerify({ mobileNumber, onLoginSuccess }) {
         otp,
       });
 
-      // Log the response for debugging
       console.log('API Response:', response.status, response.data);
 
       if (response.status === 200) {
         const { token, isAdmin } = response.data;
-        // Store the token in localStorage
-        localStorage.setItem('token', token);
-
-        // Move to the dashboard or appropriate page
-        onLoginSuccess(isAdmin);
+        localStorage.setItem('token', token); // Store the token
+        onLoginSuccess(isAdmin); // Redirect based on login success
       } else {
         setErrorMessage('Unexpected response. Please try again.');
       }
     } catch (error) {
-      console.error('Error during OTP verification:', error);
       setErrorMessage(error.response?.data?.message || 'Invalid OTP. Please try again.');
     }
   };
 
   return (
-    <React.Fragment>
-      <CssBaseline />
-      <Container
-        maxWidth="sm"
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          bgcolor: '#EAEAEA',
-        }}
-      >
-        <Box
-          sx={{
-            bgcolor: '#252A34',
-            padding: '30px',
-            borderRadius: '12px',
-            boxShadow: 3,
-            maxWidth: '400px',
-            width: '100%',
-            textAlign: 'center',
-            color: '#EAEAEA',
-          }}
-        >
-          <Typography variant="h4" gutterBottom sx={{ color: '#08D9D6' }}>
-            Verify OTP
-          </Typography>
-          <TextField
-            label="Enter OTP"
-            variant="outlined"
-            fullWidth
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            sx={{
-              marginBottom: '20px',
-              bgcolor: '#EAEAEA',
-              borderRadius: '4px',
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: '#08D9D6',
-                },
-                '&:hover fieldset': {
-                  borderColor: '#08D9D6',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#08D9D6',
-                },
-              },
-            }}
-          />
-          {errorMessage && (
-            <Typography color="#FF2E63" variant="body2" sx={{ marginBottom: '15px' }}>
-              {errorMessage}
-            </Typography>
-          )}
-          <Button
-            variant="contained"
-            onClick={handleVerify}
-            fullWidth
-            sx={{
-              bgcolor: '#08D9D6',
-              color: '#252A34',
-              '&:hover': {
-                bgcolor: '#07C0BD',
-              },
-            }}
-          >
-            Verify OTP
-          </Button>
-        </Box>
-      </Container>
-    </React.Fragment>
+    <div className="otp-container">
+      <div className="otp-box">
+        <h1>Verify OTP</h1>
+        <input
+          type="text"
+          placeholder="Enter OTP"
+          value={otp}
+          onChange={(e) => setOtp(e.target.value)}
+          className="otp-input"
+        />
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
+        <button onClick={handleVerify} className="otp-button">Verify OTP</button>
+      </div>
+    </div>
   );
 }
