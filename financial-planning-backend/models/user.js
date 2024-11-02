@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-  mobileNumber: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
   otp: { type: String },
   otpExpiresAt: { type: Date },  // Expiry time for OTP
   isVerified: { type: Boolean, default: false }, // Flag to verify if user has been authenticated

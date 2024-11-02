@@ -16,8 +16,6 @@ router.post('/submit', authMiddleware, async (req, res) => {
     yearsUntilRetirement,
     isSpouseRetired,
     spouseYearsUntilRetirement,
-    saveForChildrenEducation,
-    educationSavingsPercentage,
     ownPrimaryHome,
     loanAmountPrimaryHome,
     currentHomeValue,
@@ -29,21 +27,20 @@ router.post('/submit', authMiddleware, async (req, res) => {
     studentLoans,
     studentLoanBalance,
     otherDebts,
-    otherDebtDetails,
+    otherDebtDetails, // Assuming this is now an array of objects with fields 'description' and 'amount'
     monthlyIncome,
     monthlyExpenses,
     temporaryExpenses,
     temporaryExpenseDetails,
     annualTravelExpenses,
-    lifeInsurancePremium,
-    taxableAssets,
+    anytaxableAssets,
+    taxableAssets, // Assuming this is an array of objects with fields 'description' and 'value'
     emergencySavings,
     retirementAccounts,
-    retirementAccountTypes,
+    retirementAccountTypes, // Assuming this is an array of strings
     retirementAnnualContributions,
     HSA_balance,
     HSA_annualContributions,
-    lifeInsuranceCashValue,
     termLifeInsurance,
     termLifeInsuranceAmount,
     termLifeInsurancePeriod,
@@ -64,8 +61,6 @@ router.post('/submit', authMiddleware, async (req, res) => {
       yearsUntilRetirement,
       isSpouseRetired,
       spouseYearsUntilRetirement,
-      saveForChildrenEducation,
-      educationSavingsPercentage,
       ownPrimaryHome,
       loanAmountPrimaryHome,
       currentHomeValue,
@@ -77,21 +72,20 @@ router.post('/submit', authMiddleware, async (req, res) => {
       studentLoans,
       studentLoanBalance,
       otherDebts,
-      otherDebtDetails,
+      otherDebtDetails, // Expected as an array of objects with 'description' and 'amount'
       monthlyIncome,
       monthlyExpenses,
       temporaryExpenses,
       temporaryExpenseDetails,
       annualTravelExpenses,
-      lifeInsurancePremium,
-      taxableAssets,
+      anytaxableAssets,
+      taxableAssets, // Expected as an array of objects with 'description' and 'value'
       emergencySavings,
       retirementAccounts,
-      retirementAccountTypes,
+      retirementAccountTypes, // Expected as an array of strings
       retirementAnnualContributions,
       HSA_balance,
       HSA_annualContributions,
-      lifeInsuranceCashValue,
       termLifeInsurance,
       termLifeInsuranceAmount,
       termLifeInsurancePeriod,
@@ -109,6 +103,7 @@ router.post('/submit', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
 
 
 

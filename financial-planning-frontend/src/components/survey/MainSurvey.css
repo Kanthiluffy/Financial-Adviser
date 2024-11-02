@@ -89,3 +89,71 @@ html, body {
 .next-button, .submit-button {
   background-color: #39E079;
 }
+/* Styles for dynamic policy fields */
+.policy-group {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.policy-name,
+.policy-amount {
+  width: 48%; /* Each input takes half width of the group */
+}
+
+/* Yes/No Button Styles for Consistency */
+.yesno-button {
+  width: 48%;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border: 2px solid #141414;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.1s, color 0.1s; /* Reduce transition time */
+}
+
+.yesno-button:hover {
+  background-color: #e0e0e0;
+}
+
+.yes-selected,
+.no-selected {
+  background-color: #39E079; /* Immediate green background */
+  color: white;
+  border-color: #39E079;
+}
+
+/* Add focus styles for better accessibility */
+.yesno-button:focus {
+  outline: 2px solid #39E079;
+}
+
+/* Styles for dynamic asset fields in survey */
+.asset-group {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.asset-description,
+.asset-value {
+  width: 48%; /* Each input takes half width of the group */
+}
+
+.add-button {
+  background-color: #39E079;
+  color: #fff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+.add-button:hover {
+  background-color: #33c56b;
+}
+

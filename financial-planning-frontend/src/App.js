@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginFlow from './components/auth/LoginFlow';  // No curly braces for default exports
+import EmailLoginFlow from './components/auth/EmailLoginFlow';
 import AdminDashboard from './components/dashboards/AdminDashboard';  // No curly braces for default exports
 import UserDashboard from './components/dashboards/UserDashboard';  // No curly braces for default exports
 import MainSurvey from './components/survey/MainSurvey';
@@ -14,7 +15,7 @@ const App = () => {
           
 
       <Routes>
-        <Route path="/login" element={<LoginFlow />} />
+        <Route path="/login" element={<EmailLoginFlow />} />
         <Route path="/" element={<LandingPage/>}/>
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />

@@ -1,60 +1,71 @@
 const mongoose = require('mongoose');
 
+const otherDebtDetailsSchema = new mongoose.Schema({
+  description: { type: String, required: true },
+  amount: { type: Number, required: true }
+});
+
+const taxableAssetSchema = new mongoose.Schema({
+  description: { type: String, required: true },
+  value: { type: Number, required: true }
+});
+
+const cashValueLifeInsuranceCoverageSchema = new mongoose.Schema({
+  policy: { type: String, required: true },
+  amount: { type: Number, required: true }
+});
+
 const surveySchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the user
-  age: { type: Number, required: true },  // User's age
-  maritalStatus: { type: String, enum: ['single', 'married'], required: true },  // Marital Status
-  spouseAge: { type: Number },  // Spouse's age (if applicable)
-  hasChildren: { type: Boolean, required: true },  // Do they have children? (Yes/No checkbox)
-  childrenAges: [{ type: Number }],  // Array of children's ages (if Yes is selected)
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 
-  isRetired: { type: Boolean, required: true },  // Are they already retired?
-  yearsUntilRetirement: { type: Number },  // How many more years to work (if not retired)
-  isSpouseRetired: { type: Boolean },  // Is spouse retired?
-  spouseYearsUntilRetirement: { type: Number },  // Spouse's years until retirement (if applicable)
+  // Demographics Section
+  age: { type: Number, required: true },
+  maritalStatus: { type: String, enum: ['single', 'married'], required: true },
+  spouseAge: { type: Number },
+  hasChildren: { type: Boolean, required: true },
+  numberOfChildren: { type: Number },
+  childrenAges: [{ type: Number }],
 
-  saveForChildrenEducation: { type: Boolean },  // Are they saving for children’s education?
-  educationSavingsPercentage: { type: Number },  // Percentage of tuition they plan to cover
+  // Goals Section
+  isRetired: { type: Boolean, required: true },
+  yearsUntilRetirement: { type: Number },
+  spouseRetired: { type: Boolean },
+  spouseYearsUntilRetirement: { type: Number },
 
   // Assets and Liabilities Section
-  ownPrimaryHome: { type: Boolean },  // Do they own their primary home?
-  loanAmountPrimaryHome: { type: Number },  // Loan amount on primary home
-  currentHomeValue: { type: Number },  // Current home value
-  monthlyMortgagePayment: { type: Number },  // Monthly mortgage and interest payment
-  ownOtherRealEstate: { type: Boolean },  // Do they own other real estate properties?
-  otherRealEstateValue: { type: Number },  // Value of other real estate properties
-  otherRealEstateLoanAmount: { type: Number },  // Loan amount on other real estate properties
-  otherRealEstateMortgagePayment: { type: Number },  // Monthly mortgage and interest payment on other real estate
-  studentLoans: { type: Boolean },  // Do they have student loans?
-  studentLoanBalance: { type: Number },  // Remaining balance on student loans
-  otherDebts: { type: Boolean },  // Do they have other debts?
-  otherDebtDetails: { type: String },  // Other debt types and amounts
+  ownHome: { type: Boolean },
+  homeLoanAmount: { type: Number },
+  homeValue: { type: Number },
+  monthlyMortgagePayment: { type: Number },
 
-  // Income and Expenses Section
-  monthlyIncome: { type: Number },  // Current monthly income
-  monthlyExpenses: { type: Number },  // Current monthly expenses
-  temporaryExpenses: { type: Boolean },  // Temporary expenses to be paid off in a few years
-  temporaryExpenseDetails: { type: String },  // Details of temporary expenses and how long they will last
-  annualTravelExpenses: { type: Number },  // Average annual travel expenses
-  lifeInsurancePremium: { type: Number },  // Current life insurance premium
+  otherRealEstate: { type: Boolean },
+  otherRealEstateValue: { type: Number },
+  otherRealEstateLoan: { type: Number },
+  otherRealEstateMortgage: { type: Number },
 
-  // Investments and Retirement Section
-  taxableAssets: { type: Number },  // Current taxable assets
-  emergencySavings: { type: Number },  // Current emergency savings balance
-  retirementAccounts: { type: Boolean },  // Do they have retirement accounts?
-  retirementAccountTypes: [{ type: String }],  // Types of retirement accounts
-  retirementAnnualContributions: { type: Number },  // Annual contributions and matching
-  HSA_balance: { type: Number },  // Health Savings Account balance
-  HSA_annualContributions: { type: Number },  // Annual contributions to Health Savings Account
-  lifeInsuranceCashValue: { type: Number },  // Cash surrender value of life insurance policies
+  studentLoans: { type: Boolean },
+  studentLoanBalance: { type: Number },
+  otherDebts: { type: Boolean },
+  otherDebtsDetails: [otherDebtDetailsSchema],  // Array of other debts with description and amount
+
+  // Investments and Emergency Savings
+  anytaxableAssets: { type: Boolean},
+  taxableAssets: [taxableAssetSchema],  // Array of taxable assets with description and value
+  emergencySavings: { type: Number },
+
+  // Retirement Accounts
+  retirementAccounts: { type: Boolean },
+  retirementAccountDetails: [{ type: String }],  // Array of selected retirement account types
+  retirementContributions: { type: Number },
 
   // Life Insurance Section
-  termLifeInsurance: { type: Boolean },  // Do they have term life insurance?
-  termLifeInsuranceAmount: { type: Number },  // Term life insurance face amount
-  termLifeInsurancePeriod: { type: Number },  // Term life insurance coverage period
-  termLifeInsuranceLivingBenefits: { type: Boolean },  // Does it include living benefits?
-  cashValueLifeInsurance: { type: Boolean },  // Do they have cash value life insurance?
-  cashValueLifeInsuranceAmount: { type: Number },  // Coverage amount of cash value life insurance
+  termLifeInsurance: { type: Boolean },
+  termLifeInsuranceFaceAmount: { type: Number },
+  termLifeInsuranceCoveragePeriod: { type: Number },
+  termLifeInsuranceBenefits: { type: Boolean },
+
+  cashValueLifeInsurance: { type: Boolean },
+  cashValueLifeInsuranceCoverage: [cashValueLifeInsuranceCoverageSchema],  // Array of policies with name and amount
 });
 
 const Survey = mongoose.model('Survey', surveySchema);
