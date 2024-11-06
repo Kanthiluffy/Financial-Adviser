@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './MainSurvey.css';
+
+
 const surveySections = [
   {
     title: "Demographics Section",
@@ -26,6 +28,8 @@ const surveySections = [
       { id: 8, type: 'number', label: 'How many more years do you plan to work?', field: 'yearsUntilRetirement', condition: (data) => data.isRetired === false, validation: { required: true, errorMessage: 'Please specify years until retirement.' } },
       { id: 9, type: 'yesno', label: 'Is your spouse/partner already retired?', field: 'spouseRetired', condition: (data) => data.maritalStatus === 'married' },
       { id: 10, type: 'number', label: "How many more years does your spouse/partner plan to work?", field: 'spouseYearsUntilRetirement', condition: (data) => data.spouseRetired === false && data.maritalStatus === 'married', validation: { required: true, errorMessage: 'Please specify years spouse plans to work.' } },
+      { id: 11, type: 'yesno', label: 'Are you planning to save for your kids’ college?', field: 'saveForCollege' },
+      { id: 12, type: 'number', label: '% of the college fee you would like to support?', field: 'collegeFeeSupportPercentage', condition: (data) => data.saveForCollege === true, validation: { required: true, errorMessage: 'Please specify the percentage you plan to support.' } },
     ],
   },
   {
@@ -63,6 +67,66 @@ const surveySections = [
     ],
   },
   {
+    title: "Income",  
+    questions: [
+      { 
+        id: 51, 
+        type: 'number', 
+        label: "What is your current monthly income?", 
+        field: 'monthlyIncome', 
+        validation: { required: true, errorMessage: 'Please provide your current monthly income.' } 
+      },
+      { 
+        id: 52, 
+        type: 'number', 
+        label: "What is your spouse's current monthly income?", 
+        field: 'spouseMonthlyIncome', 
+        condition: (data) => data.maritalStatus === 'married' && data.spouseRetired === false, 
+        validation: { required: true, errorMessage: 'Please provide your spouse\'s current monthly income.' } 
+      },
+      { 
+        id: 53, 
+        type: 'number', 
+        label: "What are your current monthly expenses (excluding mortgages)?", 
+        field: 'monthlyExpenses', 
+        validation: { required: true, errorMessage: 'Please provide your monthly expenses.' } 
+      }
+    ],
+  },
+  {
+    title: "Expenses",
+    questions: [
+      { 
+        id: 54, 
+        type: 'number', 
+        label: "What are your temporary expenses?", 
+        field: 'temporaryExpenses', 
+        validation: { required: true, errorMessage: 'Please provide your temporary expenses.' } 
+      },
+      { 
+        id: 55, 
+        type: 'number', 
+        label: "How many years do you plan to pay for your temporary expenses?", 
+        field: 'temporaryExpenseYears', 
+        validation: { required: true, errorMessage: 'Please specify the number of years for temporary expenses.' } 
+      },
+      { 
+        id: 56, 
+        type: 'number', 
+        label: "What are your average travel expenses per year?", 
+        field: 'annualTravelExpenses', 
+        validation: { required: true, errorMessage: 'Please provide your travel expenses.' } 
+      },
+      { 
+        id: 57, 
+        type: 'number', 
+        label: "What is the current monthly premium for your life insurance?", 
+        field: 'lifeInsurancePremium', 
+        validation: { required: true, errorMessage: 'Please provide your life insurance premium.' } 
+      },
+    ]
+  },
+  {
     title: "Investments and Emergency Savings",
     questions: [
       { id: 30, type: 'yesno', label: 'Do you have any current taxable assets (e.g., stocks, CDs, mutual funds, ETFs, crypto)', field: 'anytaxableAssets' },
@@ -78,28 +142,44 @@ const surveySections = [
     ],
   },
   {
-    title: "Retirement and HSA Details",
+    title: "Retirement Details",
     questions: [
       { id: 33, type: 'yesno', label: 'Do you have retirement accounts?', field: 'retirementAccounts' },
       { id: 34, type: 'checkbox', label: 'Please specify your retirement accounts:', field: 'retirementAccountDetails', options: [{ value: 'previousEmployer', label: 'Previous employer 401(k), IRA, SEP IRA (Pre-tax)' }, { value: 'currentEmployer', label: 'Current employer 401(k)' }, { value: 'roth', label: 'Roth 401(k), Roth IRA (Post-tax)' }], condition: (data) => data.retirementAccounts === true },
-      { id: 35, type: 'number', label: 'Annual contributions and matching (if applicable):', field: 'retirementContributions', condition: (data) => data.retirementAccounts === true },
+      { id: 35, type: 'number', label: 'What is the current cash surrender value of your life insurance plans?', field: 'cashSurrenderValue', validation: { required: true, errorMessage: 'Please provide the cash surrender value of your life insurance if applicable.' }}
+    ],
+  },
+  {
+    title: "HSA Details",
+    questions: [
+      { id: 36, type: 'yesno', label: 'Do you have a Health Savings Account (HSA)?', field: 'hasHSA' },
+      { id: 37, type: 'number', label: 'What is your annual contribution to your HSA?', field: 'hsaContribution', condition: (data) => data.hasHSA === true, validation: { required: true, errorMessage: 'Please provide your HSA contribution amount if applicable.' } },
+      { id: 38, type: 'number', label: 'What is the current balance in your HSA?', field: 'hsaBalance', condition: (data) => data.hasHSA === true, validation: { required: true, errorMessage: 'Please provide your HSA balance if applicable.' } }
+    ],
+  },
+  {
+    title: "Annuities",
+    questions: [
+      { id: 39, type: 'yesno', label: 'Do you have any annuity accounts?', field: 'annuityAccounts' },
+      { id: 40, type: 'number', label: 'What is the current value of your annuity?', field: 'annuityAmount', condition: (data) => data.annuityAccounts === true, validation: { required: true, errorMessage: 'Please provide the value of your annuity if applicable.' } },
+      { id: 41, type: 'number', label: 'What is the estimated annuity income at retirement?', field: 'annuityIncomeAtRetirement', condition: (data) => data.annuityAccounts === true, validation: { required: true, errorMessage: 'Please specify your annuity income at retirement.' } },
     ],
   },
   {
     title: "Life Insurance Section",
     questions: [
-      { id: 36, type: 'yesno', label: 'Do you have term life insurance coverage?', field: 'termLifeInsurance' },
-      { id: 37, type: 'number', label: 'Face amount of your term life insurance?', field: 'termLifeInsuranceFaceAmount', condition: (data) => data.termLifeInsurance === true, validation: { required: true, errorMessage: 'Provide face amount of term life insurance.' } },
-      { id: 38, type: 'number', label: 'Coverage period of your term life insurance?', field: 'termLifeInsuranceCoveragePeriod', condition: (data) => data.termLifeInsurance === true, validation: { required: true, errorMessage: 'Provide coverage period of term life insurance.' } },
-      { id: 39, type: 'yesno', label: 'Does your term life insurance include living benefits?', field: 'termLifeInsuranceBenefits', condition: (data) => data.termLifeInsurance === true }
+      { id: 42, type: 'yesno', label: 'Do you have term life insurance coverage?', field: 'termLifeInsurance' },
+      { id: 43, type: 'number', label: 'Face amount of your term life insurance?', field: 'termLifeInsuranceFaceAmount', condition: (data) => data.termLifeInsurance === true, validation: { required: true, errorMessage: 'Provide face amount of term life insurance.' } },
+      { id: 44, type: 'number', label: 'Coverage period of your term life insurance?', field: 'termLifeInsuranceCoveragePeriod', condition: (data) => data.termLifeInsurance === true, validation: { required: true, errorMessage: 'Provide coverage period of term life insurance.' } },
+      { id: 45, type: 'yesno', label: 'Does your term life insurance include living benefits?', field: 'termLifeInsuranceBenefits', condition: (data) => data.termLifeInsurance === true }
     ]
   },
   {
     title: "Cash Value Life Insurance Section",
     questions: [
-      { id: 40, type: 'yesno', label: 'Do you have cash value life insurance (e.g., whole life, universal life, variable life)?', field: 'cashValueLifeInsurance' },
+      { id: 46, type: 'yesno', label: 'Do you have cash value life insurance (e.g., whole life, universal life, variable life)?', field: 'cashValueLifeInsurance' },
       { 
-        id: 41, 
+        id: 47, 
         type: 'dynamicPolicyFields', 
         label: 'What is the coverage amount for each policy?', 
         field: 'cashValueLifeInsuranceCoverage', 
@@ -107,47 +187,101 @@ const surveySections = [
         validation: { required: true, errorMessage: 'Please provide details of each life insurance policy.' }
       }
     ]
-  }
+  },
+  {
+    title: "Long-Term Care Coverage",
+    questions: [
+      { id: 48, type: 'yesno', label: 'Do you have long-term care (LTC) insurance?', field: 'longTermCareCoverage' },
+      { id: 49, type: 'number', label: 'What is the coverage amount of your LTC insurance?', field: 'ltcCoverageAmount', condition: (data) => data.longTermCareCoverage === true, validation: { required: true, errorMessage: 'Please specify the LTC coverage amount if applicable.' } },
+      { id: 50, type: 'number', label: 'What is your monthly premium for LTC insurance?', field: 'ltcMonthlyPremiums', condition: (data) => data.longTermCareCoverage === true, validation: { required: true, errorMessage: 'Please specify the monthly LTC premium if applicable.' } },
+    ],
+  },
+  
 ];
 
 const MainSurvey = () => {
   const [surveyData, setSurveyData] = useState({
-    age: '', 
+    age: '',  
     maritalStatus: '', 
     spouseAge: '', 
     hasChildren: true, 
     numberOfChildren: '', 
     childrenAges: [],
+    
+    // Goals Section
     isRetired: true, 
-    yearsUntilRetirement: 0, 
+    yearsUntilRetirement: '', 
     spouseRetired: true, 
-    spouseYearsUntilRetirement: 0,
+    spouseYearsUntilRetirement: '',
+    saveForCollege: null,  
+    collegeFeeSupportPercentage: '',
+    
+    // Assets and Liabilities Section
     ownHome: true, 
     homeLoanAmount: '', 
     homeValue: '', 
     monthlyMortgagePayment: '',
+    
+    // Other Real Estate Section
     otherRealEstate: false, 
     otherRealEstateValue: '', 
     otherRealEstateLoan: '', 
     otherRealEstateMortgage: '',
+    
+    // Student Loans and Other Debts Section
     studentLoans: false, 
     studentLoanBalance: '', 
     otherDebts: false, 
     otherDebtsDetails: [{ description: '', amount: '' }],
+    
+    // Investments and Emergency Savings Section
     anytaxableAssets: false,
     taxableAssets: [{ description: '', value: '' }], 
     emergencySavings: '',
+    
+    // Retirement Details Section
     retirementAccounts: true, 
-    retirementAccountDetails: [], // Initialize as empty array
+    retirementAccountDetails: [], // Initialize as empty array for checkboxes
+    
+    // Added fields based on surveySections structure
     retirementContributions: '',
+    cashSurrenderValue: '',
+  
+    // HSA Details Section
+    hasHSA: false,
+    hsaContribution: '', 
+    hsaBalance: '',
+    
+    // Annuities Section
+    annuityAccounts: false, 
+    annuityAmount: '', 
+    annuityIncomeAtRetirement: '',
+    
+    // Life Insurance Section
     termLifeInsurance: true, 
     termLifeInsuranceFaceAmount: '', 
     termLifeInsuranceCoveragePeriod: '', 
     termLifeInsuranceBenefits: true,
+    
+    // Cash Value Life Insurance Section
     cashValueLifeInsurance: true, 
     cashValueLifeInsuranceCoverage: [{ policy: '', amount: '' }],
-    policies: [{ name: '', amount: 0 }] // Initialize with a default object
+    policies: [{ name: '', amount: 0 }],
+    
+    // Long-Term Care Coverage Section
+    longTermCareCoverage: false,
+    ltcCoverageAmount: '',
+    ltcMonthlyPremiums: '',
+
+    monthlyIncome: '', 
+    spouseMonthlyIncome: '', 
+    monthlyExpenses: '', 
+    temporaryExpenses: '', 
+    temporaryExpenseYears: '', 
+    annualTravelExpenses: '',
+    lifeInsurancePremium: ''
   });
+  
   
   
   const [validationErrors, setValidationErrors] = useState({});
@@ -299,6 +433,31 @@ const MainSurvey = () => {
               </button>
             </div>
           )}
+          {question.type === 'checkbox' && question.options && (
+          <div className="checkbox-group">
+            <label className="form-label">{question.label}</label>
+            {question.options.map((option) => (
+              <label key={option.value} className="checkbox-label">
+                <input
+                  type="checkbox"
+                  value={option.value}
+                  checked={surveyData[question.field]?.includes(option.value)}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setSurveyData((prevData) => {
+                      const selectedOptions = prevData[question.field] || [];
+                      const updatedOptions = checked
+                        ? [...selectedOptions, option.value]
+                        : selectedOptions.filter((value) => value !== option.value);
+                      return { ...prevData, [question.field]: updatedOptions };
+                    });
+                  }}
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
+        )}
 
           {question.type === 'dynamicChildrenAges' && (
   <div>
@@ -402,36 +561,33 @@ const MainSurvey = () => {
   };
 
   return (
-    <div className="survey-container">
-      
-      <div className="flex-1 flex flex-col items-center px-5 py-5">
-        <div className="max-w-xl w-full">
-          {renderQuestions()}
-          <div className="flex justify-between mt-5">
-            {currentSection > 0 && (
-              <button onClick={handleBack} className="button back-button">
-                Back
-              </button>
-            )}
-            {currentSection >= surveySections.length - 1 ? (
-              <button 
-                onClick={handleSubmit} 
-                className="button submit-button" 
-                disabled={isSubmitting}>
-                {isSubmitting ? 'Submitting...' : 'Submit'}
-              </button>
-            ) : (
-              <button onClick={handleNext} className="button next-button">
-                Next
-              </button>
-            )}
+    <div className="survey-container" >
+        <div className="flex-1 flex flex-col items-center px-5 py-5">
+          <div className="max-w-xl w-full">
+            {renderQuestions()}
+            <div className="flex justify-between mt-5">
+              {currentSection > 0 && (
+                <button onClick={handleBack} className="button back-button">
+                  Back
+                </button>
+              )}
+              {currentSection >= surveySections.length - 1 ? (
+                <button 
+                  onClick={handleSubmit} 
+                  className="button submit-button" 
+                  disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Submit'}
+                </button>
+              ) : (
+                <button onClick={handleNext} className="button next-button">
+                  Next
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
-  
-
 };
 
 export default MainSurvey;

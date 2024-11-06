@@ -31,6 +31,8 @@ const surveySchema = new mongoose.Schema({
   yearsUntilRetirement: { type: Number },
   spouseRetired: { type: Boolean },
   spouseYearsUntilRetirement: { type: Number },
+  saveForCollege: { type: Boolean },  // New question
+  collegeFeeSupportPercentage: { type: Number },  // New question
 
   // Assets and Liabilities Section
   ownHome: { type: Boolean },
@@ -65,7 +67,31 @@ const surveySchema = new mongoose.Schema({
   termLifeInsuranceBenefits: { type: Boolean },
 
   cashValueLifeInsurance: { type: Boolean },
-  cashValueLifeInsuranceCoverage: [cashValueLifeInsuranceCoverageSchema],  // Array of policies with name and amount
+  cashValueLifeInsuranceCoverage: [cashValueLifeInsuranceCoverageSchema],
+  cashSurrenderValue: { type: Number },  // New question  // Array of policies with name and amount
+
+  // Health Savings Account (HSA) Section (new)
+  hasHSA: { type: Boolean },  // New question
+  hsaContribution: { type: Number },  // New question
+  hsaBalance: { type: Number },  // New question
+
+  // Annuities Section (new)
+  annuityAccounts: { type: Boolean },  // New question
+  annuityAmount: { type: Number },  // New question
+  annuityIncomeAtRetirement: { type: Number },  // New question
+
+  // Long-Term Care (LTC) Insurance (new)
+  longTermCareCoverage: { type: Boolean },  // New question
+  ltcCoverageAmount: { type: Number },  // New question
+  ltcMonthlyPremiums: { type: Number },  // New question
+
+  monthlyIncome: { type: Number },
+  spouseMonthlyIncome: { type: Number },
+  monthlyExpenses: { type: Number },
+  temporaryExpenses: { type: Number },
+  temporaryExpenseYears: { type: Number },
+  annualTravelExpenses: { type: Number },
+  lifeInsurancePremium: { type: Number },
 });
 
 const Survey = mongoose.model('Survey', surveySchema);

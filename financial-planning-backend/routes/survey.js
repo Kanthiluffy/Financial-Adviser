@@ -16,6 +16,8 @@ router.post('/submit', authMiddleware, async (req, res) => {
     yearsUntilRetirement,
     isSpouseRetired,
     spouseYearsUntilRetirement,
+    saveForCollege,
+    collegeFeeSupportPercentage,
     ownPrimaryHome,
     loanAmountPrimaryHome,
     currentHomeValue,
@@ -46,7 +48,20 @@ router.post('/submit', authMiddleware, async (req, res) => {
     termLifeInsurancePeriod,
     termLifeInsuranceLivingBenefits,
     cashValueLifeInsurance,
-    cashValueLifeInsuranceAmount
+    cashValueLifeInsuranceAmount,
+    cashSurrenderValue,
+    hasHSA,
+    hsaContribution,
+    hsaBalance,
+    annuityAccounts,
+    annuityAmount,
+    annuityIncomeAtRetirement,
+    longTermCareCoverage,
+    ltcCoverageAmount,
+    ltcMonthlyPremiums,
+    spouseMonthlyIncome,
+    temporaryExpenseYears,
+    lifeInsurancePremium,
   } = req.body;
 
   try {
@@ -61,6 +76,8 @@ router.post('/submit', authMiddleware, async (req, res) => {
       yearsUntilRetirement,
       isSpouseRetired,
       spouseYearsUntilRetirement,
+      saveForCollege,
+      collegeFeeSupportPercentage,
       ownPrimaryHome,
       loanAmountPrimaryHome,
       currentHomeValue,
@@ -91,7 +108,20 @@ router.post('/submit', authMiddleware, async (req, res) => {
       termLifeInsurancePeriod,
       termLifeInsuranceLivingBenefits,
       cashValueLifeInsurance,
-      cashValueLifeInsuranceAmount
+      cashValueLifeInsuranceAmount,
+      cashSurrenderValue,
+      hasHSA,
+      hsaContribution,
+      hsaBalance,
+      annuityAccounts,
+      annuityAmount,
+      annuityIncomeAtRetirement,
+      longTermCareCoverage,
+      ltcCoverageAmount,
+      ltcMonthlyPremiums,
+      spouseMonthlyIncome,
+      temporaryExpenseYears,
+      lifeInsurancePremium
     });
 
     await survey.save();

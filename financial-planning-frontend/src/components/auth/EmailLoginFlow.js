@@ -40,7 +40,7 @@ export default function LoginFlow() {
       if (isAdmin) {
         navigate('/admin-dashboard'); // Admin dashboard
       } else {
-        navigate('/user-dashboard'); // Regular user dashboard
+        navigate('/home'); // Regular user dashboard
       }
     } catch (error) {
       console.error('Error submitting survey after login:', error);
