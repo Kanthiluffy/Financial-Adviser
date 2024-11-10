@@ -1,0 +1,235 @@
+/* Dashboard Layout */
+.dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f4f9f9;
+}
+@media (max-width: 768px) {
+    .sidebar {
+      position: fixed;
+      transform: translateX(-100%);
+      width: 100%;
+      transition: transform 0.4s ease;
+    }
+    .sidebar.open {
+      transform: translateX(0);
+    }
+  }
+  
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    background-color: #252A34;
+    color: #EAEAEA;
+    transition: width 0.3s ease;
+    z-index: 1000;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.closed {
+    width: 60px;
+}
+
+.sidebar-toggle {
+    position: absolute;
+    right: -12px;
+    top: 20px;
+    background-color: #252A34;
+    border: none;
+    color: #EAEAEA;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.sidebar-nav {
+    padding: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: #EAEAEA;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+    gap: 1rem;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+    background-color: #08D9D6;
+    color: #252A34;
+}
+
+.sidebar.closed .nav-label {
+    display: none;
+}
+
+/* Main Content Styles */
+.main-content {
+    flex: 1;
+    margin-left: 250px;
+    transition: margin-left 0.3s ease;
+    padding: 2rem;
+    width: calc(100% - 250px);
+}
+
+.main-content.sidebar-closed {
+    margin-left: 60px;
+    width: calc(100% - 60px);
+}
+
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+    font-size: 2rem;
+    color: #252A34;
+    font-weight: 700;
+}
+
+.dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+}
+
+.grid-item {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 100%;
+    padding: 1.5rem;
+}
+
+/* Make all component containers responsive */
+.grid-item > div {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* Component-specific responsive styles */
+.grid-item #webcrumbs > div {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+.grid-item .container {
+    width: 100% !important;
+    padding: 0 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .content-wrapper {
+        padding: 0 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        transform: translateX(-100%);
+        width: 100%;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar.closed {
+        transform: translateX(-100%);
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        padding: 1rem;
+        width: 100% !important;
+    }
+
+    .main-content.sidebar-closed {
+        width: 100% !important;
+    }
+
+    .sidebar-toggle {
+        right: -36px;
+        background-color: #252A34;
+        padding: 0.5rem;
+        border-radius: 0 4px 4px 0;
+    }
+
+    .grid-item {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 0.5rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .grid-item {
+        padding: 0.75rem;
+    }
+}
+
+/* Accessibility */
+.nav-item:focus {
+    outline: 2px solid #08D9D6;
+    outline-offset: -2px;
+}
+
+.sidebar-toggle:focus {
+    outline: 2px solid #08D9D6;
+    outline-offset: 2px;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+

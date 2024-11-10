@@ -10,9 +10,9 @@ const MyPlugin = () => {
   return (
     <div id="webcrumbs"> 
                 	<div className='w-[800px] bg-white shadow-lg rounded-lg p-6'>  <section className='min-h-[600px]'>
-    	    <header className='mb-6'>
+    	    
     	      <h1 className='text-4xl font-title text-neutral-950'>Latest Articles</h1>
-    	    </header>
+    	    
     	    <article className='mb-8'>
     	      <h2 className='text-2xl font-semibold text-primary-950 mb-2'>Building a Scalable Web Application</h2>
     	      <p className='text-neutral-700'>In this article, I share my experience on building scalable web applications from scratch, focusing on best practices and performance optimization. Learn how to scale your project and manage a growing codebase.</p>
