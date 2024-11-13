@@ -5,17 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
 import { ArrowRight, DollarSign, PiggyBank, Shield, Stethoscope, Heart, Calendar, Users, GraduationCap, CreditCard, Home, Book, Plus, HelpCircle, BarChart, Menu, User, Wallet, Minus, FileEdit, Settings, Calculator, UserPlus, FileText, AlertTriangle } from 'lucide-react'
 import { Button } from "./ui/button"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarTrigger,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarProvider,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from "./ui/sidebar"
+import Layout from './Layout'
+import { ArticlesComponent } from './articlesnew'
 
 
 const tooltipData = {
@@ -88,20 +79,60 @@ const FinancialCard = ({ title, icon: Icon, color = "bg-gray-100", tooltipConten
   </TooltipProvider>
 )
 
-const Speedometer = ({ score, label }) => (
-  <div className="relative w-full h-40">
-    <svg viewBox="0 0 200 100" className="w-full h-full">
-      <path d="M20 90 A 80 80 0 0 1 180 90" fill="none" stroke="#e5e7eb" strokeWidth="20" />
-      <path d={`M20 90 A 80 80 0 0 1 ${20 + 160 * (score / 100)} ${90 - Math.sin(Math.PI * (score / 100)) * 80}`} fill="none" stroke="#10b981" strokeWidth="20" />
-      <circle cx="100" cy="90" r="5" fill="#4b5563" />
-      <line x1="100" y1="90" x2={`${100 + Math.cos(Math.PI * (1 - score / 100)) * 70}`} y2={`${90 - Math.sin(Math.PI * (1 - score / 100)) * 70}`} stroke="#4b5563" strokeWidth="2" />
-    </svg>
-    <div className="absolute inset-0 flex flex-col items-center justify-center">
-      <div className="text-3xl font-bold">{score}</div>
-      <div className="text-sm text-gray-500">{label}</div>
+const Speedometer = ({ score, label }) => {
+  const centerX = 100; // Center of the circle (X-coordinate)
+  const centerY = 90;  // Center of the circle (Y-coordinate, since it's a semi-circle)
+  const radius = 80;   // Radius of the arc
+  const needleLength = 70; // Length of the needle
+
+  // Convert score to an angle (0 to 180 degrees for the semi-circle)
+  const angle = Math.PI * (score / 100); // Convert score to radians
+
+  // Calculate the arc endpoint coordinates based on the score
+  const arcX = centerX + radius * Math.cos(Math.PI - angle);
+  const arcY = centerY - radius * Math.sin(Math.PI - angle);
+
+  // Calculate the needle endpoint coordinates
+  const needleX = centerX + needleLength * Math.cos(Math.PI - angle);
+  const needleY = centerY - needleLength * Math.sin(Math.PI - angle);
+
+  return (
+    <div className="relative w-full h-40">
+      <svg viewBox="0 0 200 100" className="w-full h-full">
+        {/* Background arc (gray) */}
+        <path d="M20 90 A 80 80 0 0 1 180 90" fill="none" stroke="#e5e7eb" strokeWidth="20" />
+
+        {/* Foreground arc (green), based on the score */}
+        <path
+          d={`M20 90 A 80 80 0 0 1 ${arcX} ${arcY}`}
+          fill="none"
+          stroke="#10b981"
+          strokeWidth="20"
+        />
+
+        {/* Needle */}
+        <line
+          x1={centerX}
+          y1={centerY}
+          x2={needleX}
+          y2={needleY}
+          stroke="#4b5563"
+          strokeWidth="2"
+        />
+
+        {/* Center circle */}
+        <circle cx={centerX} cy={centerY} r="5" fill="#4b5563" />
+      </svg>
+
+      {/* Score display */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div className="text-3xl font-bold">{score}</div>
+        <div className="text-sm text-gray-500">{label}</div>
+      </div>
     </div>
-  </div>
-)
+  );
+}
+
 
 const SummaryCard = ({ title, icon: Icon, status }) => (
   <Card className={`${status === 'good' ? 'bg-green-100' : 'bg-red-100'}`}>
@@ -269,9 +300,10 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="flex h-screen w-screen overflow-auto">
+    <Layout>
+    <div className="flex h-screen w-screen overflow-y-auto">
       
-        <main className="container h-screen w-screen mx-auto p-4 space-y-8">
+        <main className="container h-screen w-screen mx-auto p-4 space-y-8 ">
           {/* Income Overview Section */}
           <RetirementPlannerFlowchart />
 
@@ -326,7 +358,7 @@ export default function Dashboard() {
                 <CardTitle>Score with Controlled Plan</CardTitle>
               </CardHeader>
               <CardContent>
-                <Speedometer score={10} label="Projected" />
+                <Speedometer score={85} label="Projected" />
               </CardContent>
             </Card>
           </section>
@@ -352,8 +384,11 @@ export default function Dashboard() {
               ))}
             </div>
           </section>
+          <div className="pb-8">
+          <ArticlesComponent className="max-w-full md:max-w-3xl lg:max-w-4xl mx-auto" />
+        </div>
         </main>
       </div>
-    
+      </Layout>
   );
 }
