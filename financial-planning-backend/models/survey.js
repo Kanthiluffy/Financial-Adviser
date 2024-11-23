@@ -19,6 +19,7 @@ const surveySchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 
   // Demographics Section
+  name: { type: String, required: true },
   age: { type: Number, required: true },
   maritalStatus: { type: String, enum: ['single', 'married'], required: true },
   spouseAge: { type: Number },
@@ -92,6 +93,8 @@ const surveySchema = new mongoose.Schema({
   temporaryExpenseYears: { type: Number },
   annualTravelExpenses: { type: Number },
   lifeInsurancePremium: { type: Number },
+}, {
+  timestamps: true // Automatically adds createdAt and updatedAt fields
 });
 
 const Survey = mongoose.model('Survey', surveySchema);

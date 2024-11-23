@@ -7,6 +7,7 @@ const router = express.Router();
 // Submit survey data
 router.post('/submit', authMiddleware, async (req, res) => {
   const {
+    name,
     age,
     maritalStatus,
     spouseAge,
@@ -67,6 +68,7 @@ router.post('/submit', authMiddleware, async (req, res) => {
   try {
     const survey = new Survey({
       user: req.user.id,
+      name,
       age,
       maritalStatus,
       spouseAge,

@@ -2,9 +2,11 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
+const Survey = require('../models/survey');
 const sendOTP = require('../config/otpService');
 const sendEmailReport = require('../services/emailService');
 const dotenv = require('dotenv');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 dotenv.config();
 const router = express.Router();
@@ -73,35 +75,40 @@ router.post('/verify', async (req, res) => {
 
 
 router.post('/loginemail', async (req, res) => {
-  const { email } = req.body;
+  const { email, name } = req.body;
   const otp = generateOTP();
-  console.log(email);
+
   try {
     let user = await User.findOne({ email });
 
-    // If user doesn't exist, create new user
     if (!user) {
-      user = new User({ email });
+      // If the user is new, the name must be provided
+      if (!name) {
+        return res.status(400).json({ message: 'Name is required for new users' });
+      }
+
+      user = new User({ email, name });
+    } else {
+      // Existing users retain their current name
+      console.log(`Existing user: ${email}`);
     }
 
     user.otp = otp;
-    user.otpExpiresAt = Date.now() + 10 * 60 * 1000;  // OTP valid for 10 minutes
-
+    user.otpExpiresAt = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
     await user.save();
-    console.log("IM here 1");
+
     // Send OTP
     await sendEmailReport(email, otp);
-    console.log("IM here 2");
 
     res.status(200).json({ message: 'OTP sent successfully' });
   } catch (error) {
-    console.log(error);
+    console.error('Error sending OTP:', error);
     res.status(500).json({ message: 'Error sending OTP' });
   }
 });
 
 router.post('/verifyemail', async (req, res) => {
-  const { email, otp } = req.body;
+  const { email, otp} = req.body;
 
   if (!email || !otp) {
     return res.status(400).json({ message: 'Email and OTP are required' });
@@ -129,4 +136,45 @@ router.post('/verifyemail', async (req, res) => {
     res.status(500).json({ message: 'Error verifying OTP', error });
   }
 });
+
+router.get('/user', authMiddleware, async (req, res) => {
+  try {
+    console.log("IN user");
+    // Fetch user details
+    const user = await User.findById(req.user.id).select("name email");
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Fetch the most recently updated survey for the user
+    const latestSurvey = await Survey.findOne({ user: req.user.id })
+      .sort({ updatedAt: -1 }) // Sort by `updatedAt` in descending order
+      .select("updatedAt");
+
+    res.json({
+      name: user.name,
+      email: user.email,
+      lastUpdated: latestSurvey?.updatedAt || null, // Include `lastUpdated` if a survey exists
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+router.post('/check-user', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    res.status(200).json({ exists: !!user }); // Respond with `true` if the user exists
+  } catch (error) {
+    console.error('Error checking user existence:', error);
+    res.status(500).json({ message: 'Error checking user existence' });
+  }
+});
+
+
 module.exports = router;
