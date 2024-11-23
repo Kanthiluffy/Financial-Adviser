@@ -1,13 +1,16 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
 import { ArrowRight, DollarSign, PiggyBank, Shield, Stethoscope, Heart, Calendar, Users, GraduationCap, CreditCard, Home, Book, Plus, HelpCircle, BarChart, Menu, User, Wallet, Minus, FileEdit, Settings, Calculator, UserPlus, FileText, AlertTriangle } from 'lucide-react'
 import { Button } from "./ui/button"
 import Layout from './Layout'
 import { ArticlesComponent } from './articlesnew'
-
+import UserProfile from './UserProfile'
+import AdvisorCTA from './AdvisorCTA'
+import LastUpdate from './LastUpdate'
 
 const tooltipData = {
   "Tax Now": [
@@ -80,37 +83,26 @@ const FinancialCard = ({ title, icon: Icon, color = "bg-gray-100", tooltipConten
 )
 
 const Speedometer = ({ score, label }) => {
-  const centerX = 100; // Center of the circle (X-coordinate)
-  const centerY = 90;  // Center of the circle (Y-coordinate, since it's a semi-circle)
-  const radius = 80;   // Radius of the arc
-  const needleLength = 70; // Length of the needle
-
-  // Convert score to an angle (0 to 180 degrees for the semi-circle)
-  const angle = Math.PI * (score / 100); // Convert score to radians
-
-  // Calculate the arc endpoint coordinates based on the score
-  const arcX = centerX + radius * Math.cos(Math.PI - angle);
-  const arcY = centerY - radius * Math.sin(Math.PI - angle);
-
-  // Calculate the needle endpoint coordinates
-  const needleX = centerX + needleLength * Math.cos(Math.PI - angle);
-  const needleY = centerY - needleLength * Math.sin(Math.PI - angle);
+  const centerX = 100
+  const centerY = 90
+  const radius = 80
+  const needleLength = 70
+  const angle = Math.PI * (score / 100)
+  const arcX = centerX + radius * Math.cos(Math.PI - angle)
+  const arcY = centerY - radius * Math.sin(Math.PI - angle)
+  const needleX = centerX + needleLength * Math.cos(Math.PI - angle)
+  const needleY = centerY - needleLength * Math.sin(Math.PI - angle)
 
   return (
     <div className="relative w-full h-40">
       <svg viewBox="0 0 200 100" className="w-full h-full">
-        {/* Background arc (gray) */}
         <path d="M20 90 A 80 80 0 0 1 180 90" fill="none" stroke="#e5e7eb" strokeWidth="20" />
-
-        {/* Foreground arc (green), based on the score */}
         <path
           d={`M20 90 A 80 80 0 0 1 ${arcX} ${arcY}`}
           fill="none"
           stroke="#10b981"
           strokeWidth="20"
         />
-
-        {/* Needle */}
         <line
           x1={centerX}
           y1={centerY}
@@ -119,36 +111,167 @@ const Speedometer = ({ score, label }) => {
           stroke="#4b5563"
           strokeWidth="2"
         />
-
-        {/* Center circle */}
         <circle cx={centerX} cy={centerY} r="5" fill="#4b5563" />
       </svg>
-
-      {/* Score display */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div className="text-3xl font-bold">{score}</div>
         <div className="text-sm text-gray-500">{label}</div>
       </div>
     </div>
-  );
+  )
 }
 
+export default function Dashboard() {
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [surveyData, setSurveyData] = useState(null)
+  const [financialScore, setFinancialScore] = useState(0)
+  const [projectedScore, setProjectedScore] = useState(0)
+  const [userEmail, setUserEmail] = useState('')
+  const [lastUpdateTime, setLastUpdateTime] = useState(null)
 
-const SummaryCard = ({ title, icon: Icon, status }) => (
-  <Card className={`${status === 'good' ? 'bg-green-100' : 'bg-red-100'}`}>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">
-        <Icon className="h-4 w-4 mr-2 inline-block" />
-        {title}
-      </CardTitle>
-    </CardHeader>
-    <CardContent>
-      <div className={`text-lg font-semibold ${status === 'good' ? 'text-green-700' : 'text-red-700'}`}>
-        {status === 'good' ? 'Good' : 'Needs Attention'}
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        const response = await axios.get('http://localhost:5000/api/survey/status', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        
+        setSurveyData(response.data.survey)
+        setUserEmail(response.data.email)
+        setLastUpdateTime(response.data.lastUpdated)
+        calculateScores(response.data.survey)
+      } catch (err) {
+        setError(err.message)
+        console.error('Error fetching survey data:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  const calculateScores = (data) => {
+    if (!data) return
+
+    // Calculate current financial score
+    let currentScore = 0
+    let maxPoints = 100
+
+    // Emergency savings score (20 points)
+    if (data.emergencySavings) {
+      const monthlyExpenses = data.monthlyExpenses || 5000
+      const savingsRatio = data.emergencySavings / (monthlyExpenses * 6)
+      currentScore += Math.min(20, Math.round(savingsRatio * 20))
+    }
+
+    // Retirement planning score (20 points)
+    if (data.retirementAccounts) {
+      currentScore += 20
+    }
+
+    // Debt management score (20 points)
+    if (!data.studentLoans && !data.otherDebts) {
+      currentScore += 20
+    }
+
+    // Insurance coverage score (20 points)
+    if (data.termLifeInsurance || data.cashValueLifeInsurance) {
+      currentScore += 20
+    }
+
+    // Investment diversification score (20 points)
+    if (data.taxableAssets && data.taxableAssets.length > 0) {
+      currentScore += 20
+    }
+
+    setFinancialScore(Math.round((currentScore / maxPoints) * 100))
+    setProjectedScore(Math.min(100, Math.round((currentScore / maxPoints) * 100) + 15))
+  }
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      </Layout>
+    )
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="bg-red-50 p-4 rounded-lg">
+            <p className="text-red-700">Error loading dashboard: {error}</p>
+            <Button 
+              className="mt-4" 
+              onClick={() => window.location.reload()}
+              variant="outline"
+            >
+              Retry
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
+
+  return (
+    <Layout>
+      <div className="flex h-screen w-screen overflow-y-auto">
+        <main className="container h-screen w-screen mx-auto p-4 space-y-8">
+        
+          <RetirementPlannerFlowchart />
+
+          <section className="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 rounded-xl shadow-lg">
+            <h2 className="text-2xl font-bold mb-4 text-indigo-800">Financial Categories</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FinancialCard title="Tax Now" icon={DollarSign} tooltipContent="Current taxable income and assets" />
+              <FinancialCard title="Tax Deferred" icon={PiggyBank} tooltipContent="Assets with deferred tax benefits" />
+              <FinancialCard title="Tax Exempt" icon={Shield} tooltipContent="Tax-free income and assets" />
+              <FinancialCard title="HSA" icon={Stethoscope} tooltipContent="Health Savings Account" />
+              <FinancialCard title="Term Life Insurance" icon={Heart} tooltipContent="Fixed-term life insurance coverage" />
+              <FinancialCard title="Cash Value Insurance" icon={DollarSign} tooltipContent="Life insurance with a cash value component" />
+              <FinancialCard title="Long Term Care" icon={Stethoscope} tooltipContent="Insurance for long-term medical care" />
+              <FinancialCard title="Annuity" icon={Calendar} tooltipContent="Fixed sum paid annually" />
+              <FinancialCard title="Inheritance" icon={Users} tooltipContent="Expected or received inheritance" />
+            </div>
+          </section>
+
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Current Score</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Speedometer score={financialScore} label="Current" />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Score with Controlled Plan</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Speedometer score={projectedScore} label="Projected" />
+              </CardContent>
+            </Card>
+          </section>
+          {/* Advisor CTA Section */}
+          <div className="max-w-2xl mx-auto">
+            <AdvisorCTA />
+          </div>
+          <div className="pb-8">
+            <ArticlesComponent className="max-w-full md:max-w-3xl lg:max-w-4xl mx-auto" />
+          </div>
+        </main>
       </div>
-    </CardContent>
-  </Card>
-)
+    </Layout>
+  )
+}
 
 function RetirementPlannerFlowchart() {
   const [myIncome, setMyIncome] = useState(5000)
@@ -271,124 +394,4 @@ function CashFlowCard({ cashFlow }) {
       </CardContent>
     </Card>
   )
-}
-
-
-
-const cards = [
-  { title: "Primary Home", color: "bg-green-100", value: "$0", icon: Home },
-  { title: "Student Loans", color: "bg-red-100", value: "$0", icon: GraduationCap },
-  { title: "Other Debts", color: "bg-red-100", value: "$0", icon: CreditCard },
-  { title: "Investment Home", color: "bg-green-100", value: "$0", icon: Home },
-  { title: "Student Expenses", color: "bg-red-100", value: "$0", icon: Book },
-  { title: "Add New", color: "bg-gray-50", value: "", icon: null },
-]
-
-const summaryCards = [
-  { title: "Life Insurance", icon: Heart, status: "good" },
-  { title: "Long Term Care", icon: Stethoscope, status: "bad" },
-  { title: "Tax Exempt", icon: Shield, status: "good" },
-  { title: "Cash Flow", icon: ArrowRight, status: "good" },
-  { title: "College Savings", icon: GraduationCap, status: "bad" },
-  { title: "Longevity Risk", icon: Calendar, status: "good" },
-  { title: "Market Risk", icon: BarChart, status: "bad" },
-  { title: "Education", icon: Book, status: "good" },
-]
-
-
-export default function Dashboard() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-
-  return (
-    <Layout>
-    <div className="flex h-screen w-screen overflow-y-auto">
-      
-        <main className="container h-screen w-screen mx-auto p-4 space-y-8 ">
-          {/* Income Overview Section */}
-          <RetirementPlannerFlowchart />
-
-          {/* Financial Categories Section */}
-          <section className="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold mb-4 text-indigo-800">Financial Categories</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FinancialCard title="Tax Now" icon={DollarSign} tooltipContent="Current taxable income and assets" />
-              <FinancialCard title="Tax Deferred" icon={PiggyBank} tooltipContent="Assets with deferred tax benefits" />
-              <FinancialCard title="Tax Exempt" icon={Shield} tooltipContent="Tax-free income and assets" />
-              <FinancialCard title="HSA" icon={Stethoscope} tooltipContent="Health Savings Account" />
-              <FinancialCard title="Term Life Insurance" icon={Heart} tooltipContent="Fixed-term life insurance coverage" />
-              <FinancialCard title="Cash Value Insurance" icon={DollarSign} tooltipContent="Life insurance with a cash value component" />
-              <FinancialCard title="Long Term Care" icon={Stethoscope} tooltipContent="Insurance for long-term medical care" />
-              <FinancialCard title="Annuity" icon={Calendar} tooltipContent="Fixed sum paid annually" />
-              <FinancialCard title="Inheritance" icon={Users} tooltipContent="Expected or received inheritance" />
-            </div>
-          </section>
-
-          {/* Liabilities and Assets Section */}
-          <section className="bg-gradient-to-br from-green-50 to-emerald-100 p-6 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold mb-4 text-emerald-800">Liabilities and Assets</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {cards.map((card, index) => (
-                <Card key={index} className={`${card.color} transition-all duration-300 hover:shadow-md`}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      {card.title}
-                      {card.icon && <card.icon className="h-5 w-5 text-gray-500" />}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{card.value}</div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-
-          {/* Financial Scores Section */}
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Current Score</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Speedometer score={65} label="Current" />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Score with Controlled Plan</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Speedometer score={85} label="Projected" />
-              </CardContent>
-            </Card>
-          </section>
-
-          {/* Summary/Suggestions Section */}
-          <section className="bg-gradient-to-br from-purple-50 to-pink-100 p-6 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold mb-4 text-purple-800">Summary and Suggestions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {summaryCards.map((card, index) => (
-                <Card key={index} className={`${card.status === 'good' ? 'bg-green-100 hover:bg-green-200' : 'bg-red-100 hover:bg-red-200'} transition-all duration-300`}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium flex items-center">
-                      <card.icon className="h-4 w-4 mr-2" />
-                      {card.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className={`text-lg font-semibold ${card.status === 'good' ? 'text-green-700' : 'text-red-700'}`}>
-                      {card.status === 'good' ? 'Good' : 'Needs Attention'}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-          <div className="pb-8">
-          <ArticlesComponent className="max-w-full md:max-w-3xl lg:max-w-4xl mx-auto" />
-        </div>
-        </main>
-      </div>
-      </Layout>
-  );
 }

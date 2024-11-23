@@ -8,6 +8,13 @@ const surveySections = [
   {
     title: "Demographics Section",
     questions: [
+      { 
+        id: 58, 
+        type: 'nametext', 
+        label: 'What is your name?', 
+        field: 'name', 
+        validation: { required: true, errorMessage: 'Name is required.' } 
+      },
       { id: 1, type: 'number', label: 'What is your age?', field: 'age', validation: { required: true, errorMessage: 'Age is required.' } },
       { id: 2, type: 'radio', label: 'Marital Status', field: 'maritalStatus', options: [{ value: 'single', label: 'I am single' }, { value: 'married', label: 'I am in a relationship/married' }], validation: { required: true, errorMessage: 'Marital status is required.' } },
       { id: 3, type: 'number', label: "What is your spouse/partner's age?", field: 'spouseAge', condition: (data) => data.maritalStatus === 'married', validation: { required: true, errorMessage: 'Spouse age is required when married.' } },
@@ -28,7 +35,7 @@ const surveySections = [
       { id: 8, type: 'number', label: 'How many more years do you plan to work?', field: 'yearsUntilRetirement', condition: (data) => data.isRetired === false, validation: { required: true, errorMessage: 'Please specify years until retirement.' } },
       { id: 9, type: 'yesno', label: 'Is your spouse/partner already retired?', field: 'spouseRetired', condition: (data) => data.maritalStatus === 'married' },
       { id: 10, type: 'number', label: "How many more years does your spouse/partner plan to work?", field: 'spouseYearsUntilRetirement', condition: (data) => data.spouseRetired === false && data.maritalStatus === 'married', validation: { required: true, errorMessage: 'Please specify years spouse plans to work.' } },
-      { id: 11, type: 'yesno', label: 'Are you planning to save for your kids’ college?', field: 'saveForCollege' },
+      { id: 11, type: 'yesno', label: 'Are you planning to save for your kids’ college?', field: 'saveForCollege', condition: (data) => data.hasChildren === true,},
       { id: 12, type: 'number', label: '% of the college fee you would like to support?', field: 'collegeFeeSupportPercentage', condition: (data) => data.saveForCollege === true, validation: { required: true, errorMessage: 'Please specify the percentage you plan to support.' } },
     ],
   },
@@ -201,6 +208,7 @@ const surveySections = [
 
 const MainSurvey = () => {
   const [surveyData, setSurveyData] = useState({
+    name: '', 
     age: '',  
     maritalStatus: '', 
     spouseAge: '', 
@@ -213,7 +221,7 @@ const MainSurvey = () => {
     yearsUntilRetirement: '', 
     spouseRetired: true, 
     spouseYearsUntilRetirement: '',
-    saveForCollege: null,  
+    saveForCollege: false,  
     collegeFeeSupportPercentage: '',
     
     // Assets and Liabilities Section
@@ -236,7 +244,7 @@ const MainSurvey = () => {
     
     // Investments and Emergency Savings Section
     anytaxableAssets: false,
-    taxableAssets: [{ description: '', value: '' }], 
+    taxableAssets: [], 
     emergencySavings: '',
     
     // Retirement Details Section
@@ -341,50 +349,121 @@ const MainSurvey = () => {
   };
 
   const validateSection = () => {
-    const currentQuestions = surveySections[currentSection].questions;
-    let errors = {};
-    let hasErrors = false;
+  const currentQuestions = surveySections[currentSection].questions;
+  let errors = {};
+  let hasErrors = false;
 
-    currentQuestions.forEach((question) => {
-      if (question.condition && !question.condition(surveyData)) return;
-      const value = surveyData[question.field];
-      if (question.validation?.required && (!value || (Array.isArray(value) && value.length === 0))) {
+  currentQuestions.forEach((question) => {
+    // Skip questions that don't meet their condition
+    if (question.condition && !question.condition(surveyData)) return;
+
+    const value = surveyData[question.field];
+
+    // Basic validation for required fields
+    if (question.validation?.required) {
+      if (!value || (Array.isArray(value) && value.length === 0)) {
         errors[question.field] = question.validation.errorMessage;
         hasErrors = true;
       }
-    });
 
-    setValidationErrors(errors);
-    return !hasErrors;
-  };
+      // Handle dynamic array validation (e.g., taxableAssets)
+      if (Array.isArray(value) && question.field === 'taxableAssets') {
+        value.forEach((asset, index) => {
+          if (!asset.description || !asset.value) {
+            errors[`${question.field}[${index}]`] =
+              'Each taxable asset must have a description and a value.';
+            hasErrors = true;
+          }
+        });
+      }
+    }
+  });
 
+  setValidationErrors(errors);
+  return !hasErrors;
+};
+
+  
+
+  // const handleSubmit = async () => {
+  //   const token = localStorage.getItem('token');
+  //   if (!token) {
+  //     localStorage.setItem('pendingSurvey', JSON.stringify(surveyData));
+  //     navigate('/login');
+  //     return;
+  //   }
+
+  //   setIsSubmitting(true);
+  //   try {
+  //     const response = await axios.post('http://localhost:5000/api/survey/submit', surveyData, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+  //     if (response.status === 201) {
+  //       console.log('Survey submitted successfully');
+  //     }
+  //   } catch (error) {
+  //     if (error.response && error.response.status === 401) {
+  //       localStorage.removeItem('token');
+  //       localStorage.setItem('pendingSurvey', JSON.stringify(surveyData));
+  //       navigate('/login');
+  //     }
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
   const handleSubmit = async () => {
     const token = localStorage.getItem('token');
+  
     if (!token) {
+      // Save survey data and navigate to login if no token exists
       localStorage.setItem('pendingSurvey', JSON.stringify(surveyData));
       navigate('/login');
       return;
     }
-
+  
     setIsSubmitting(true);
+  
     try {
-      const response = await axios.post('http://localhost:5000/api/survey/submit', surveyData, {
+      // Verify if the token is valid
+      const userCheckResponse = await axios.get('http://localhost:5000/api/auth/user', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (response.status === 201) {
-        console.log('Survey submitted successfully');
+  
+      if (userCheckResponse.status === 200) {
+        // If user is already logged in, navigate to the dashboard
+        navigate('/user-dashboard');
+        return;
       }
     } catch (error) {
       if (error.response && error.response.status === 401) {
+        // Token is invalid or expired
         localStorage.removeItem('token');
         localStorage.setItem('pendingSurvey', JSON.stringify(surveyData));
         navigate('/login');
+        return;
       }
+    }
+  
+    // If token is valid and survey submission is required
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/survey/submit',
+        surveyData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response.status === 201) {
+        console.log('Survey submitted successfully');
+        navigate('/user-dashboard'); // Navigate to dashboard after successful submission
+      }
+    } catch (error) {
+      console.error('Error submitting survey:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
-
+  
   const renderQuestions = () => {
     return surveySections[currentSection].questions.map((question) => {
       if (question.condition && !question.condition(surveyData)) return null;
@@ -393,6 +472,15 @@ const MainSurvey = () => {
         <div key={question.id} className="form-group">
           {question.type !== 'checkbox' && <label className="form-label">{question.label}</label>}
 
+          {/* Handle text input */}
+        {question.type === 'nametext' && (
+          <input
+            type="text"
+            className={`form-input ${validationErrors[question.field] ? 'input-error' : ''}`}
+            value={surveyData[question.field]}
+            onChange={(e) => handleChange(question.field, e.target.value)}
+          />
+        )}
           {question.type === 'number' && (
             <input
               type="number"
@@ -525,31 +613,56 @@ const MainSurvey = () => {
   </div>
 )}
 
-          {question.type === 'dynamicAssetFields' && (
+{question.type === 'dynamicAssetFields' && (
   <div>
     {surveyData.taxableAssets.map((asset, index) => (
       <div key={index} className="form-group asset-group">
         <input
           type="text"
           placeholder={`Asset ${index + 1} Description`}
-          className="form-input asset-description"
+          className={`form-input ${
+            validationErrors[`taxableAssets[${index}]`] ? 'input-error' : ''
+          }`}
           value={asset.description}
-          onChange={(e) => handleDynamicFieldChange('taxableAssets', index, 'description', e.target.value)}
+          onChange={(e) =>
+            handleDynamicFieldChange('taxableAssets', index, 'description', e.target.value)
+          }
         />
+        {validationErrors[`taxableAssets[${index}]`] &&
+          validationErrors[`taxableAssets[${index}]`].includes('description') && (
+            <div className="error-message">
+              {validationErrors[`taxableAssets[${index}]`]}
+            </div>
+          )}
+
         <input
           type="number"
           placeholder={`Asset ${index + 1} Value`}
-          className="form-input asset-value"
+          className={`form-input ${
+            validationErrors[`taxableAssets[${index}]`] ? 'input-error' : ''
+          }`}
           value={asset.value}
-          onChange={(e) => handleDynamicFieldChange('taxableAssets', index, 'value', e.target.value)}
+          onChange={(e) =>
+            handleDynamicFieldChange('taxableAssets', index, 'value', e.target.value)
+          }
         />
+        {validationErrors[`taxableAssets[${index}]`] &&
+          validationErrors[`taxableAssets[${index}]`].includes('value') && (
+            <div className="error-message">
+              {validationErrors[`taxableAssets[${index}]`]}
+            </div>
+          )}
       </div>
     ))}
-    <button className="add-button" onClick={() => handleAddField('taxableAssets', { description: '', value: '' })}>
+    <button
+      className="add-button"
+      onClick={() => handleAddField('taxableAssets', { description: '', value: '' })}
+    >
       Add More Assets
     </button>
   </div>
 )}
+
 
 
           {validationErrors[question.field] && (

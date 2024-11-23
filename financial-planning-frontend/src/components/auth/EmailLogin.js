@@ -11,8 +11,20 @@ export default function Login({ onOtpSent }) {
       setErrorMessage(''); // Reset error message before making the request
       console.log('Sending OTP for email:', email); // Log for debugging
 
+      const pendingSurvey = JSON.parse(localStorage.getItem('pendingSurvey'));
+      const name = pendingSurvey?.name || ''; // Get the name only if survey data exists
+
+      // Check if the user is already registered
+      const userExistsResponse = await axios.post('http://localhost:5000/api/auth/check-user', { email });
+      const isNewUser = !userExistsResponse.data.exists;
+
+      const payload = { email };
+      if (isNewUser) {
+        payload.name = name; // Add name only for new users
+      }
+
       // Make an API call to send OTP
-      const response = await axios.post('http://localhost:5000/api/auth/loginemail', { email });
+      const response = await axios.post('http://localhost:5000/api/auth/loginemail', payload);
       console.log('API Response:', response.status, response.data);
 
       if (response.status === 200) {

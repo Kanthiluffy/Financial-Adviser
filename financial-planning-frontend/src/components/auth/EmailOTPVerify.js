@@ -10,7 +10,7 @@ export default function OTPVerify({email, onLoginSuccess }) {
     try {
       setErrorMessage(''); // Reset error message before making the request
       console.log('Verifying OTP for mobile number:', email);
-
+      
       // Make an API call to verify OTP
       const response = await axios.post('http://localhost:5000/api/auth/verifyemail', {
         email,
