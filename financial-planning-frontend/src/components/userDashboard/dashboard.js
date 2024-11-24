@@ -121,6 +121,42 @@ const Speedometer = ({ score, label }) => {
   )
 }
 
+const SummaryCard = ({ title, icon: Icon, status }) => (
+  <Card className={`${status === 'good' ? 'bg-green-100' : 'bg-red-100'}`}>
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className="text-sm font-medium">
+        <Icon className="h-4 w-4 mr-2 inline-block" />
+        {title}
+      </CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className={`text-lg font-semibold ${status === 'good' ? 'text-green-700' : 'text-red-700'}`}>
+        {status === 'good' ? 'Good' : 'Needs Attention'}
+      </div>
+    </CardContent>
+  </Card>
+)
+
+const cards = [
+  { title: "Primary Home", color: "bg-green-100", value: "$0", icon: Home },
+  { title: "Student Loans", color: "bg-red-100", value: "$0", icon: GraduationCap },
+  { title: "Other Debts", color: "bg-red-100", value: "$0", icon: CreditCard },
+  { title: "Investment Home", color: "bg-green-100", value: "$0", icon: Home },
+  { title: "Student Expenses", color: "bg-red-100", value: "$0", icon: Book },
+  { title: "miscellaneous", color: "bg-green-100", value: "", icon: null },
+]
+
+const summaryCards = [
+  { title: "Life Insurance", icon: Heart, status: "good" },
+  { title: "Long Term Care", icon: Stethoscope, status: "bad" },
+  { title: "Tax Exempt", icon: Shield, status: "good" },
+  { title: "Cash Flow", icon: ArrowRight, status: "good" },
+  { title: "College Savings", icon: GraduationCap, status: "bad" },
+  { title: "Longevity Risk", icon: Calendar, status: "good" },
+  { title: "Market Risk", icon: BarChart, status: "bad" },
+  { title: "Education", icon: Book, status: "good" },
+]
+
 export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -242,6 +278,26 @@ export default function Dashboard() {
             </div>
           </section>
 
+          {/* Liabilities and Assets Section */}
+          <section className="bg-gradient-to-br from-green-50 to-emerald-100 p-6 rounded-xl shadow-lg">
+            <h2 className="text-2xl font-bold mb-4 text-emerald-800">Liabilities and Assets</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {cards.map((card, index) => (
+                <Card key={index} className={`${card.color} transition-all duration-300 hover:shadow-md`}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      {card.title}
+                      {card.icon && <card.icon className="h-5 w-5 text-gray-500" />}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{card.value}</div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+
           <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -264,6 +320,27 @@ export default function Dashboard() {
           <div className="max-w-2xl mx-auto">
             <AdvisorCTA />
           </div>
+          {/* Summary/Suggestions Section */}
+          <section className="bg-gradient-to-br from-purple-50 to-pink-100 p-6 rounded-xl shadow-lg">
+            <h2 className="text-2xl font-bold mb-4 text-purple-800">Summary and Suggestions</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {summaryCards.map((card, index) => (
+                <Card key={index} className={`${card.status === 'good' ? 'bg-green-100 hover:bg-green-200' : 'bg-red-100 hover:bg-red-200'} transition-all duration-300`}>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium flex items-center">
+                      <card.icon className="h-4 w-4 mr-2" />
+                      {card.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className={`text-lg font-semibold ${card.status === 'good' ? 'text-green-700' : 'text-red-700'}`}>
+                      {card.status === 'good' ? 'Good' : 'Needs Attention'}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
           <div className="pb-8">
             <ArticlesComponent className="max-w-full md:max-w-3xl lg:max-w-4xl mx-auto" />
           </div>
@@ -274,58 +351,88 @@ export default function Dashboard() {
 }
 
 function RetirementPlannerFlowchart() {
-  const [myIncome, setMyIncome] = useState(5000)
-  const [spouseIncome, setSpouseIncome] = useState(4000)
-  const [expenses, setExpenses] = useState(3000)
-  const [totalIncome, setTotalIncome] = useState(0)
-  const [cashFlow, setCashFlow] = useState(0)
+  const [myIncome, setMyIncome] = useState(5000);
+  const [spouseIncome, setSpouseIncome] = useState(4000);
+  const [expenses, setExpenses] = useState(3000);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [cashFlow, setCashFlow] = useState(0);
 
   useEffect(() => {
-    const newTotalIncome = myIncome + spouseIncome
-    setTotalIncome(newTotalIncome)
-    setCashFlow(newTotalIncome - expenses)
-  }, [myIncome, spouseIncome, expenses])
+    const newTotalIncome = myIncome + spouseIncome;
+    setTotalIncome(newTotalIncome);
+    setCashFlow(newTotalIncome - expenses);
+  }, [myIncome, spouseIncome, expenses]);
 
   return (
     <div className="container mx-auto p-4 max-w-4xl">
-      <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Retirement Planner Dashboard</h1>
-      <div className="flex flex-col md:flex-row justify-between items-start mb-8 space-y-4 md:space-y-0 md:space-x-4">
-        <IncomeCard
-          title="My Income"
-          icon={<Users className="h-6 w-6 text-blue-500" />}
-          value={myIncome}
-        />
-        <IncomeCard
-          title="Spouse Income"
-          icon={<Users className="h-6 w-6 text-green-500" />}
-          value={spouseIncome}
-        />
-      </div>
-      <div className="flex justify-center mb-8">
-        <svg className="w-full max-w-md" height="50" viewBox="0 0 200 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 0 L100 50 L200 0" stroke="#CBD5E0" strokeWidth="2" strokeDasharray="4 4" />
+      <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
+        Retirement Planner Dashboard
+      </h1>
+      {/* Flowchart Container */}
+      <div className="flex flex-col md:flex-row md:justify-center md:items-center md:space-x-4 space-y-4 md:space-y-0">
+        {/* Income Section */}
+        <div className="flex flex-col items-center space-y-2">
+          <IncomeCard
+            title="My Income"
+            icon={<Users className="h-6 w-6 text-blue-500" />}
+            value={myIncome}
+          />
+          <IncomeCard
+            title="Spouse Income"
+            icon={<Users className="h-6 w-6 text-green-500" />}
+            value={spouseIncome}
+          />
+        </div>
+        {/* Arrow pointing to Total Income - Hidden on Mobile */}
+        <svg
+          className="hidden md:block w-16 h-16 mx-auto md:mx-0"
+          viewBox="0 0 50 50"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0 25 L40 25 M40 25 L30 15 M40 25 L30 35"
+            stroke="#CBD5E0"
+            strokeWidth="2"
+          />
         </svg>
-      </div>
-      <div className="flex justify-center mb-8">
+        {/* Total Income */}
         <TotalIncomeCard totalIncome={totalIncome} />
-      </div>
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-        <svg className="w-1/3 h-12 hidden md:block" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 0 L100 0" stroke="#CBD5E0" strokeWidth="2" strokeDasharray="4 4" />
+        {/* Arrow pointing to Expenses - Hidden on Mobile */}
+        <svg
+          className="hidden md:block w-16 h-16 mx-auto md:mx-0"
+          viewBox="0 0 50 50"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0 25 L40 25 M40 25 L30 15 M40 25 L30 35"
+            stroke="#CBD5E0"
+            strokeWidth="2"
+          />
         </svg>
+        {/* Expenses */}
         <ExpensesCard expenses={expenses} />
-      </div>
-      <div className="flex justify-center mb-4">
-        <svg className="w-full max-w-md" height="50" viewBox="0 0 200 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M100 0 L100 50" stroke="#CBD5E0" strokeWidth="2" strokeDasharray="4 4" />
+        {/* Arrow pointing to Cash Flow - Hidden on Mobile */}
+        <svg
+          className="hidden md:block w-16 h-16 mx-auto md:mx-0"
+          viewBox="0 0 50 50"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0 25 L40 25 M40 25 L30 15 M40 25 L30 35"
+            stroke="#CBD5E0"
+            strokeWidth="2"
+          />
         </svg>
-      </div>
-      <div className="flex justify-center">
+        {/* Cash Flow */}
         <CashFlowCard cashFlow={cashFlow} />
       </div>
     </div>
-  )
+  );
 }
+
 
 function IncomeCard({ title, icon, value }) {
   return (
