@@ -16,7 +16,7 @@ const UserDashboard = () => {
   const fetchSurveyData = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.get('http://localhost:5000/api/survey/status', {
+      const response = await axios.get(process.env.url+'/api/survey/status', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSurveyData(response.data.survey);

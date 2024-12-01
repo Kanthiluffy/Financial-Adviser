@@ -395,7 +395,7 @@ const MainSurvey = () => {
 
   //   setIsSubmitting(true);
   //   try {
-  //     const response = await axios.post('http://localhost:5000/api/survey/submit', surveyData, {
+  //     const response = await axios.post(process.env.REACT_APP_API_URL+'/api/survey/submit', surveyData, {
   //       headers: { Authorization: `Bearer ${token}` },
   //     });
   //     if (response.status === 201) {
@@ -425,7 +425,7 @@ const MainSurvey = () => {
   
     try {
       // Verify if the token is valid
-      const userCheckResponse = await axios.get('http://localhost:5000/api/auth/user', {
+      const userCheckResponse = await axios.get(process.env.REACT_APP_API_URL+'/api/auth/user', {
         headers: { Authorization: `Bearer ${token}` },
       });
   
@@ -447,7 +447,7 @@ const MainSurvey = () => {
     // If token is valid and survey submission is required
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/survey/submit',
+        process.env.REACT_APP_API_URL+'/api/survey/submit',
         surveyData,
         {
           headers: { Authorization: `Bearer ${token}` },

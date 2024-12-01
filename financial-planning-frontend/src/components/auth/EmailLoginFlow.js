@@ -24,7 +24,7 @@ export default function LoginFlow() {
         const token = localStorage.getItem('token');
 
         // Submit the survey if pending data exists
-        const response = await axios.post('http://localhost:5000/api/survey/submit', pendingSurvey, {
+        const response = await axios.post(process.env.REACT_APP_API_URL+'/api/survey/submit', pendingSurvey, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

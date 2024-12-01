@@ -9,7 +9,7 @@ const AdminDashboard = () => {
     const fetchUsers = async () => {
       const token = localStorage.getItem('token');  // Retrieve the stored JWT token
       try {
-        const response = await axios.get('http://localhost:5000/api/admin/users', {
+        const response = await axios.get(process.env.url+'/api/admin/users', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUsers(response.data);

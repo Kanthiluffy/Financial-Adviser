@@ -9,13 +9,13 @@ export default function Login({ onOtpSent }) {
   const handleLogin = async () => {
     try {
       setErrorMessage(''); // Reset error message before making the request
-      console.log('Sending OTP for email:', email); // Log for debugging
+      console.log('Sending OTP for email: '+process.env.REACT_APP_API_URL +" "+  email); // Log for debugging
 
       const pendingSurvey = JSON.parse(localStorage.getItem('pendingSurvey'));
       const name = pendingSurvey?.name || ''; // Get the name only if survey data exists
 
       // Check if the user is already registered
-      const userExistsResponse = await axios.post('http://localhost:5000/api/auth/check-user', { email });
+      const userExistsResponse = await axios.post(process.env.REACT_APP_API_URL+'/api/auth/check-user', { email });
       const isNewUser = !userExistsResponse.data.exists;
 
       const payload = { email };
@@ -24,7 +24,8 @@ export default function Login({ onOtpSent }) {
       }
 
       // Make an API call to send OTP
-      const response = await axios.post('http://localhost:5000/api/auth/loginemail', payload);
+      await console.log(process.env.REACT_APP_API_URL);
+      const response = await axios.post(process.env.REACT_APP_API_URL+'/api/auth/loginemail', payload);
       console.log('API Response:', response.status, response.data);
 
       if (response.status === 200) {

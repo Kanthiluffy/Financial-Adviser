@@ -12,8 +12,6 @@ import UserProfile from './UserProfile'
 import AdvisorCTA from './AdvisorCTA'
 import LastUpdate from './LastUpdate'
 
-
-// ... (keep the tooltipData and other constant data as is)
 const tooltipData = {
   "Tax Now": [
     { label: 'Wages', amount: 50000 },
@@ -54,11 +52,11 @@ const tooltipData = {
 
 const FinancialCard = ({ title, icon: Icon, color = "bg-gray-100", tooltipContent = "" }) => (
   <TooltipProvider>
-    <Card className={`relative ${color} transition-all duration-300 hover:shadow-lg hover:scale-105`}>
+    <Card className={`relative ${color}`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium flex items-center space-x-2">
-          <Icon className="h-5 w-5" />
-          <span>{title}</span>
+        <CardTitle className="text-sm font-medium">
+          <Icon className="h-4 w-4 mr-2 inline-block" />
+          {title}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -124,22 +122,21 @@ const Speedometer = ({ score, label }) => {
 }
 
 const SummaryCard = ({ title, icon: Icon, status }) => (
-  <Card className={`${status === 'good' ? 'bg-emerald-100' : 'bg-rose-100'} transition-all duration-300 hover:shadow-lg hover:scale-105`}>
+  <Card className={`${status === 'good' ? 'bg-green-100' : 'bg-red-100'}`}>
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium flex items-center space-x-2">
-        <Icon className="h-5 w-5" />
-        <span>{title}</span>
+      <CardTitle className="text-sm font-medium">
+        <Icon className="h-4 w-4 mr-2 inline-block" />
+        {title}
       </CardTitle>
     </CardHeader>
     <CardContent>
-      <div className={`text-lg font-semibold ${status === 'good' ? 'text-emerald-700' : 'text-rose-700'}`}>
+      <div className={`text-lg font-semibold ${status === 'good' ? 'text-green-700' : 'text-red-700'}`}>
         {status === 'good' ? 'Good' : 'Needs Attention'}
       </div>
     </CardContent>
   </Card>
 )
 
-// ... (keep other constant data as is)
 const cards = [
   { title: "Primary Home", color: "bg-green-100", value: "$0", icon: Home },
   { title: "Student Loans", color: "bg-red-100", value: "$0", icon: GraduationCap },
@@ -173,7 +170,7 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.get(process.env.REACT_APP_API_URL+'/api/survey/status', {
+        const response = await axios.get('http://localhost:5000/api/survey/status', {
           headers: { Authorization: `Bearer ${token}` }
         })
         
@@ -229,11 +226,12 @@ export default function Dashboard() {
     setFinancialScore(Math.round((currentScore / maxPoints) * 100))
     setProjectedScore(Math.min(100, Math.round((currentScore / maxPoints) * 100) + 15))
   }
+
   if (loading) {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
         </div>
       </Layout>
     )
@@ -243,11 +241,10 @@ export default function Dashboard() {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
-          <div className="bg-rose-50 p-6 rounded-lg shadow-lg">
-            <AlertTriangle className="h-12 w-12 text-rose-600 mx-auto mb-4" />
-            <p className="text-rose-700 text-center mb-4">Error loading dashboard: {error}</p>
+          <div className="bg-red-50 p-4 rounded-lg">
+            <p className="text-red-700">Error loading dashboard: {error}</p>
             <Button 
-              className="w-full" 
+              className="mt-4" 
               onClick={() => window.location.reload()}
               variant="outline"
             >
@@ -261,32 +258,32 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="flex h-screen w-screen overflow-y-auto bg-gradient-to-br from-gray-50 to-gray-100">
-        <main className="container mx-auto p-6 space-y-8">
-          <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">Financial Dashboard</h1>
+      <div className="flex h-screen w-screen overflow-y-auto">
+        <main className="container h-screen w-screen mx-auto p-4 space-y-8">
         
           <RetirementPlannerFlowchart />
 
-          <section className="bg-gradient-to-br from-indigo-50 to-blue-100 p-6 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold mb-6 text-indigo-800">Financial Categories</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FinancialCard title="Tax Now" icon={DollarSign} color="bg-blue-50" tooltipContent="Current taxable income and assets" />
-              <FinancialCard title="Tax Deferred" icon={PiggyBank} color="bg-green-50" tooltipContent="Assets with deferred tax benefits" />
-              <FinancialCard title="Tax Exempt" icon={Shield} color="bg-yellow-50" tooltipContent="Tax-free income and assets" />
-              <FinancialCard title="HSA" icon={Stethoscope} color="bg-purple-50" tooltipContent="Health Savings Account" />
-              <FinancialCard title="Term Life Insurance" icon={Heart} color="bg-red-50" tooltipContent="Fixed-term life insurance coverage" />
-              <FinancialCard title="Cash Value Insurance" icon={DollarSign} color="bg-orange-50" tooltipContent="Life insurance with a cash value component" />
-              <FinancialCard title="Long Term Care" icon={Stethoscope} color="bg-teal-50" tooltipContent="Insurance for long-term medical care" />
-              <FinancialCard title="Annuity" icon={Calendar} color="bg-pink-50" tooltipContent="Fixed sum paid annually" />
-              <FinancialCard title="Inheritance" icon={Users} color="bg-indigo-50" tooltipContent="Expected or received inheritance" />
+          <section className="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 rounded-xl shadow-lg">
+            <h2 className="text-2xl font-bold mb-4 text-indigo-800">Financial Categories</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FinancialCard title="Tax Now" icon={DollarSign} tooltipContent="Current taxable income and assets" />
+              <FinancialCard title="Tax Deferred" icon={PiggyBank} tooltipContent="Assets with deferred tax benefits" />
+              <FinancialCard title="Tax Exempt" icon={Shield} tooltipContent="Tax-free income and assets" />
+              <FinancialCard title="HSA" icon={Stethoscope} tooltipContent="Health Savings Account" />
+              <FinancialCard title="Term Life Insurance" icon={Heart} tooltipContent="Fixed-term life insurance coverage" />
+              <FinancialCard title="Cash Value Insurance" icon={DollarSign} tooltipContent="Life insurance with a cash value component" />
+              <FinancialCard title="Long Term Care" icon={Stethoscope} tooltipContent="Insurance for long-term medical care" />
+              <FinancialCard title="Annuity" icon={Calendar} tooltipContent="Fixed sum paid annually" />
+              <FinancialCard title="Inheritance" icon={Users} tooltipContent="Expected or received inheritance" />
             </div>
           </section>
 
-          <section className="bg-gradient-to-br from-emerald-50 to-green-100 p-6 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold mb-6 text-emerald-800">Liabilities and Assets</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Liabilities and Assets Section */}
+          <section className="bg-gradient-to-br from-green-50 to-emerald-100 p-6 rounded-xl shadow-lg">
+            <h2 className="text-2xl font-bold mb-4 text-emerald-800">Liabilities and Assets</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {cards.map((card, index) => (
-                <Card key={index} className={`${card.color} transition-all duration-300 hover:shadow-lg hover:scale-105`}>
+                <Card key={index} className={`${card.color} transition-all duration-300 hover:shadow-md`}>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       {card.title}
@@ -301,38 +298,49 @@ export default function Dashboard() {
             </div>
           </section>
 
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="bg-gradient-to-br from-cyan-50 to-blue-100 transition-all duration-300 hover:shadow-lg">
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-cyan-800">Current Score</CardTitle>
+                <CardTitle>Current Score</CardTitle>
               </CardHeader>
               <CardContent>
                 <Speedometer score={financialScore} label="Current" />
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-br from-violet-50 to-purple-100 transition-all duration-300 hover:shadow-lg">
+            <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-violet-800">Score with Controlled Plan</CardTitle>
+                <CardTitle>Score with Controlled Plan</CardTitle>
               </CardHeader>
               <CardContent>
                 <Speedometer score={projectedScore} label="Projected" />
               </CardContent>
             </Card>
           </section>
-
+          {/* Advisor CTA Section */}
           <div className="max-w-2xl mx-auto">
             <AdvisorCTA />
           </div>
-
-          <section className="bg-gradient-to-br from-rose-50 to-pink-100 p-6 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold mb-6 text-rose-800">Summary and Suggestions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* Summary/Suggestions Section */}
+          <section className="bg-gradient-to-br from-purple-50 to-pink-100 p-6 rounded-xl shadow-lg">
+            <h2 className="text-2xl font-bold mb-4 text-purple-800">Summary and Suggestions</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {summaryCards.map((card, index) => (
-                <SummaryCard key={index} title={card.title} icon={card.icon} status={card.status} />
+                <Card key={index} className={`${card.status === 'good' ? 'bg-green-100 hover:bg-green-200' : 'bg-red-100 hover:bg-red-200'} transition-all duration-300`}>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium flex items-center">
+                      <card.icon className="h-4 w-4 mr-2" />
+                      {card.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className={`text-lg font-semibold ${card.status === 'good' ? 'text-green-700' : 'text-red-700'}`}>
+                      {card.status === 'good' ? 'Good' : 'Needs Attention'}
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </section>
-
           <div className="pb-8">
             <ArticlesComponent className="max-w-full md:max-w-3xl lg:max-w-4xl mx-auto" />
           </div>
@@ -357,7 +365,9 @@ function RetirementPlannerFlowchart() {
 
   return (
     <div className="container mx-auto p-4 max-w-4xl">
-      
+      <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
+        Retirement Planner Dashboard
+      </h1>
       {/* Flowchart Container */}
       <div className="flex flex-col md:flex-row md:justify-center md:items-center md:space-x-4 space-y-4 md:space-y-0">
         {/* Income Section */}
@@ -423,9 +433,10 @@ function RetirementPlannerFlowchart() {
   );
 }
 
+
 function IncomeCard({ title, icon, value }) {
   return (
-    <Card className="w-full md:w-64 bg-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105">
+    <Card className="w-full md:w-64 bg-white shadow-lg transition-all duration-300 hover:shadow-xl">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
         {icon}
@@ -442,7 +453,7 @@ function IncomeCard({ title, icon, value }) {
 
 function TotalIncomeCard({ totalIncome }) {
   return (
-    <Card className="w-full md:w-80 bg-gradient-to-br from-blue-50 to-indigo-100 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105">
+    <Card className="w-full md:w-80 bg-blue-50 shadow-lg transition-all duration-300 hover:shadow-xl">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-blue-600">Total Monthly Income</CardTitle>
         <Wallet className="h-6 w-6 text-blue-500" />
@@ -451,13 +462,12 @@ function TotalIncomeCard({ totalIncome }) {
         <div className="text-2xl font-bold text-blue-800">${totalIncome.toFixed(2)}</div>
       </CardContent>
     </Card>
-  
-)
+  )
 }
 
 function ExpensesCard({ expenses }) {
   return (
-    <Card className="w-full md:w-64 bg-gradient-to-br from-red-50 to-rose-100 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105">
+    <Card className="w-full md:w-64 bg-red-50 shadow-lg transition-all duration-300 hover:shadow-xl">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-red-600">Monthly Expenses</CardTitle>
         <Minus className="h-6 w-6 text-red-500" />
@@ -474,11 +484,11 @@ function ExpensesCard({ expenses }) {
 
 function CashFlowCard({ cashFlow }) {
   const textColor = cashFlow >= 0 ? 'text-green-800' : 'text-red-800'
-  const bgGradient = cashFlow >= 0 ? 'from-green-50 to-emerald-100' : 'from-red-50 to-rose-100'
+  const bgColor = cashFlow >= 0 ? 'bg-green-50' : 'bg-red-50'
   const iconColor = cashFlow >= 0 ? 'text-green-500' : 'text-red-500'
 
   return (
-    <Card className={`w-full md:w-80 bg-gradient-to-br ${bgGradient} shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105`}>
+    <Card className={`w-full md:w-80 ${bgColor} shadow-lg transition-all duration-300 hover:shadow-xl`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-gray-600">Monthly Cash Flow</CardTitle>
         <PiggyBank className={`h-6 w-6 ${iconColor}`} />
@@ -492,4 +502,3 @@ function CashFlowCard({ cashFlow }) {
     </Card>
   )
 }
-

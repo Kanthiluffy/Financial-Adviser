@@ -12,12 +12,13 @@ export default function OTPVerify({email, onLoginSuccess }) {
       console.log('Verifying OTP for mobile number:', email);
       
       // Make an API call to verify OTP
-      const response = await axios.post('http://localhost:5000/api/auth/verifyemail', {
+      const response = await axios.post(process.env.REACT_APP_API_URL+'/api/auth/verifyemail', {
         email,
         otp,
       });
 
       console.log('API Response:', response.status, response.data);
+
 
       if (response.status === 200) {
         const { token, isAdmin } = response.data;
