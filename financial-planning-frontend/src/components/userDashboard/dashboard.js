@@ -14,71 +14,45 @@ import LastUpdate from './LastUpdate'
 
 
 // ... (keep the tooltipData and other constant data as is)
-const generateTooltipData = (surveyData) => {
-  const data = surveyData || {};
+const tooltipData = {
+  "Tax Now": [
+    { label: 'Wages', amount: 50000 },
+    { label: 'Interest', amount: 2500 },
+    { label: 'Dividends', amount: 1200 },
+  ],
+  "Tax Deferred": [
+    { label: '401(k)', amount: 15000 },
+    { label: 'Traditional IRA', amount: 8000 },
+    { label: 'Pension Plans', amount: 12500 },
+  ],
+  "Tax Exempt": [
+    { label: 'Roth IRA', amount: 10000 },
+    { label: 'Municipal Bonds', amount: 5000 },
+  ],
+  "HSA": [
+    { label: 'HSA Balance', amount: 3500 },
+  ],
+  "Term Life Insurance": [
+    { label: 'Death Benefit', amount: 500000 },
+  ],
+  "Cash Value Insurance": [
+    { label: 'Cash Value', amount: 25000 },
+    { label: 'Death Benefit', amount: 300000 },
+  ],
+  "Long Term Care": [
+    { label: 'Daily Benefit', amount: 150 },
+    { label: 'Benefit Period', amount: 3 },
+  ],
+  "Annuity": [
+    { label: 'Current Value', amount: 75000 },
+    { label: 'Annual Payout', amount: 5000 },
+  ],
+  "Inheritance": [
+    { label: 'Expected Amount', amount: 100000 },
+  ],
+}
 
-  // Helper function to validate and aggregate data
-  const getData = (condition, value) => (condition ? value : 0);
-
-  return {
-    "Tax Now": [
-      {
-        label: 'Taxable Assets (Stocks, CDs, Mutual Funds, ETFs, Crypto)',
-        amount: getData(data.anyTaxableAssets, data.taxableAssets?.reduce((sum, asset) => sum + asset.value, 0)),
-      },
-      {
-        label: 'Bank Savings (for emergency funds)',
-        amount: getData(true, data.emergencySavings),
-      },
-    ],
-    "Tax Deferred": [
-      {
-        label: 'Previous Employer 401K / IRA / SEP IRA (Pre-Tax)',
-        amount: getData(data.retirementAccounts, data.previousEmployerCurrentValue),
-      },
-      {
-        label: 'Current Employer 401K',
-        amount: getData(data.retirementAccounts, data.currentEmployerCurrentValue),
-      },
-    ],
-    "Tax Exempt": [
-      {
-        label: 'Roth 401K / Roth IRA (Post-Tax)',
-        amount: getData(data.retirementAccounts, data.rothCurrentValue),
-      },
-      {
-        label: 'Health Savings Account Balance and Annual Contributions',
-        amount: getData(data.hasHSA, (data.hsaBalance || 0) + (data.hsaContribution || 0)),
-      },
-      {
-        label: 'Cash Surrender Value of Life Insurance Plans',
-        amount: getData(data.cashValueLifeInsurance, data.cashSurrenderValue),
-      },
-    ],
-    "Primary Home": [
-      { label: 'Home Value', amount: getData(data.ownHome, data.homeValue) },
-      { label: 'Mortgage Loan', amount: getData(data.ownHome, data.homeLoanAmount) },
-      { label: 'Monthly Mortgage Payment', amount: getData(data.ownHome, data.monthlyMortgagePayment) },
-    ],
-    "Other Debts": data.otherDebts
-      ? data.otherDebtsDetails.map((debt) => ({
-          label: debt.description,
-          amount: debt.amount,
-        }))
-      : [{ label: 'No other debts reported', amount: 0 }],
-    "Student Loans": [
-      { label: 'Total Student Loan Balance', amount: getData(data.studentLoans, data.studentLoanBalance) },
-    ],
-    "miscellaneous": [
-      { label: 'Annual Travel Expenses', amount: data.annualTravelExpenses || 0 },
-      { label: 'Temporary Expenses', amount: data.temporaryExpenses || 0 },
-      { label: 'Temporary Expense Years', amount: data.temporaryExpenseYears || 0 },
-    ],
-  };
-};
-
-
-const FinancialCard = ({ title, icon: Icon, color = "bg-gray-100", value = 0,tooltipData = [] }) => (
+const FinancialCard = ({ title, icon: Icon, color = "bg-gray-100", tooltipContent = "" }) => (
   <TooltipProvider>
     <Card className={`relative ${color} transition-all duration-300 hover:shadow-lg hover:scale-105`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -88,7 +62,7 @@ const FinancialCard = ({ title, icon: Icon, color = "bg-gray-100", value = 0,too
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{`$${value.toLocaleString()}`}</div>
+        <div className="text-2xl font-bold">$0</div>
       </CardContent>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -97,25 +71,18 @@ const FinancialCard = ({ title, icon: Icon, color = "bg-gray-100", value = 0,too
         <TooltipContent side="right" className="w-56 p-2 bg-white rounded-md shadow-lg">
           <h4 className="font-semibold mb-2">{title} Breakdown:</h4>
           <ul className="space-y-1">
-            {tooltipData[title]?.length > 0 ? (
-              tooltipData[title].map((item, index) => (
-                <li key={index} className="flex justify-between">
-                  <span>{item.label}:</span>
-                  <span>{item.amount != null ? `$${item.amount.toLocaleString()}` : 'N/A'}</span>
-                </li>
-              ))
-            ) : (
-              <li>No data available</li>
-            )}
+            {tooltipData[title]?.map((item, index) => (
+              <li key={index} className="flex justify-between">
+                <span>{item.label}:</span>
+                <span>${item.amount.toLocaleString()}</span>
+              </li>
+            ))}
           </ul>
-
-
         </TooltipContent>
       </Tooltip>
     </Card>
   </TooltipProvider>
-);
-
+)
 
 const Speedometer = ({ score, label }) => {
   const centerX = 100
@@ -172,7 +139,15 @@ const SummaryCard = ({ title, icon: Icon, status }) => (
   </Card>
 )
 
-
+// ... (keep other constant data as is)
+const cards = [
+  { title: "Primary Home", color: "bg-green-100", value: "$0", icon: Home },
+  { title: "Student Loans", color: "bg-red-100", value: "$0", icon: GraduationCap },
+  { title: "Other Debts", color: "bg-red-100", value: "$0", icon: CreditCard },
+  { title: "Investment Home", color: "bg-green-100", value: "$0", icon: Home },
+  { title: "Student Expenses", color: "bg-red-100", value: "$0", icon: Book },
+  { title: "miscellaneous", color: "bg-green-100", value: "", icon: null },
+]
 
 const summaryCards = [
   { title: "Life Insurance", icon: Heart, status: "good" },
@@ -185,69 +160,6 @@ const summaryCards = [
   { title: "Education", icon: Book, status: "good" },
 ]
 
-const populateCardData = (surveyData) => {
-  const cards = [
-    {
-      title: "Primary Home",
-      color: "bg-green-100",
-      value: surveyData.ownHome
-        ? `$${surveyData.homeValue?.toLocaleString() || 0}`
-        : "$0",
-      icon: Home,
-    },
-    {
-      title: "Student Loans",
-      color: "bg-red-100",
-      value: surveyData.studentLoans
-        ? `$${surveyData.studentLoanBalance?.toLocaleString() || 0}`
-        : "$0",
-      icon: GraduationCap,
-    },
-    {
-      title: "Other Debts",
-      color: "bg-red-100",
-      value: surveyData.otherDebts
-        ? `$${surveyData.otherDebtsDetails
-            ?.reduce((sum, debt) => sum + debt.amount, 0)
-            .toLocaleString() || 0}`
-        : "$0",
-      icon: CreditCard,
-    },
-    {
-      title: "Investment Home",
-      color: "bg-green-100",
-      value: surveyData.otherRealEstate
-        ? `$${surveyData.otherRealEstateValue?.toLocaleString() || 0}`
-        : "$0",
-      icon: Home,
-    },
-    {
-      title: "Student Expenses",
-      color: "bg-red-100",
-      value: surveyData.saveForCollege
-        ? `$${(
-            (surveyData.collegeFeeSupportPercentage / 100) *
-            surveyData.numberOfChildren *
-            20000 // Assuming $20,000 per child as an example
-          ).toLocaleString() || 0}`
-        : "$0",
-      icon: Book,
-    },
-    {
-      title: "miscellaneous",
-      color: "bg-green-100",
-      value: `$${(
-        (surveyData.annualTravelExpenses || 0) +
-        (surveyData.temporaryExpenses || 0)
-      ).toLocaleString()}`,
-      icon: null,
-    },
-  ];
-
-  return cards;
-};
-
-
 export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -256,10 +168,7 @@ export default function Dashboard() {
   const [projectedScore, setProjectedScore] = useState(0)
   const [userEmail, setUserEmail] = useState('')
   const [lastUpdateTime, setLastUpdateTime] = useState(null)
-  const [tooltipData, setTooltipData] = useState({})
-  const [cards, setCards] = useState([])
 
-  // const cards = populateCardData(surveyData);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -272,9 +181,6 @@ export default function Dashboard() {
         setUserEmail(response.data.email)
         setLastUpdateTime(response.data.lastUpdated)
         calculateScores(response.data.survey)
-        const tooltips = generateTooltipData(response.data.survey);
-        setTooltipData(tooltips);
-        setCards(populateCardData(response.data.survey));
       } catch (err) {
         setError(err.message)
         console.error('Error fetching survey data:', err)
@@ -285,14 +191,6 @@ export default function Dashboard() {
 
     fetchData()
   }, [])
-  useEffect(() => {
-    console.log('Updated Tooltip data:', tooltipData);
-    console.log('Survey data:', surveyData);
-    console.log('Cards:', cards);
-  }, [tooltipData, surveyData, cards]);
-
-  
-  
 
   const calculateScores = (data) => {
     if (!data) return
@@ -367,92 +265,28 @@ export default function Dashboard() {
         <main className="container mx-auto p-6 space-y-8">
           <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">Financial Dashboard</h1>
         
-          <RetirementPlannerFlowchart surveyData={surveyData} />
+          <RetirementPlannerFlowchart />
 
           <section className="bg-gradient-to-br from-indigo-50 to-blue-100 p-6 rounded-xl shadow-lg">
-  <h2 className="text-2xl font-bold mb-6 text-indigo-800">Financial Categories</h2>
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <FinancialCard
-      title="Tax Now"
-      icon={DollarSign}
-      color="bg-blue-50"
-      value={surveyData.anytaxableAssets ? surveyData.taxableAssets.reduce((sum, asset) => sum + asset.value, 0) : 0}
-      tooltipData={tooltipData}
-    />
-    <FinancialCard
-      title="Tax Deferred"
-      icon={PiggyBank}
-      color="bg-green-50"
-      value={
-        (surveyData.retirementAccounts ? surveyData.currentEmployerCurrentValue : 0) +
-        (surveyData.previousEmployerCurrentValue || 0)
-      }
-      tooltipData={tooltipData}
-    />
-    <FinancialCard
-      title="Tax Exempt"
-      icon={Shield}
-      color="bg-yellow-50"
-      value={surveyData.rothCurrentValue || 0}
-      tooltipData={tooltipData}
-    />
-    <FinancialCard
-      title="HSA"
-      icon={Stethoscope}
-      color="bg-purple-50"
-      value={surveyData.hasHSA ? surveyData.hsaBalance : 0}
-      tooltipData={tooltipData}
-    />
-    <FinancialCard
-      title="Term Life Insurance"
-      icon={Heart}
-      color="bg-red-50"
-      value={surveyData.termLifeInsurance ? surveyData.termLifeInsuranceFaceAmount : 0}
-      tooltipData={tooltipData}
-    />
-    <FinancialCard
-      title="Cash Value Insurance"
-      icon={DollarSign}
-      color="bg-orange-50"
-      value={
-        surveyData.cashValueLifeInsurance
-          ? surveyData.cashValueLifeInsuranceCoverage.reduce((sum, policy) => sum + policy.amount, 0)
-          : 0
-      }
-      tooltipData={tooltipData}
-    />
-    <FinancialCard
-      title="Long Term Care"
-      icon={Stethoscope}
-      color="bg-teal-50"
-      value={surveyData.longTermCareCoverage ? surveyData.ltcCoverageAmount : 0}
-      tooltipData={tooltipData}
-    />
-    <FinancialCard
-      title="Annuity"
-      icon={Calendar}
-      color="bg-pink-50"
-      value={surveyData.annuityAccounts ? surveyData.annuityAmount : 0}
-      tooltipData={tooltipData}
-    />
-    <FinancialCard
-      title="Inheritance"
-      icon={Users}
-      color="bg-indigo-50"
-      value={surveyData.inheritanceAmount || 0} // Add this field to surveyData if relevant
-      tooltipData={tooltipData}
-    />
-  </div>
-</section>
-
-
+            <h2 className="text-2xl font-bold mb-6 text-indigo-800">Financial Categories</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <FinancialCard title="Tax Now" icon={DollarSign} color="bg-blue-50" tooltipContent="Current taxable income and assets" />
+              <FinancialCard title="Tax Deferred" icon={PiggyBank} color="bg-green-50" tooltipContent="Assets with deferred tax benefits" />
+              <FinancialCard title="Tax Exempt" icon={Shield} color="bg-yellow-50" tooltipContent="Tax-free income and assets" />
+              <FinancialCard title="HSA" icon={Stethoscope} color="bg-purple-50" tooltipContent="Health Savings Account" />
+              <FinancialCard title="Term Life Insurance" icon={Heart} color="bg-red-50" tooltipContent="Fixed-term life insurance coverage" />
+              <FinancialCard title="Cash Value Insurance" icon={DollarSign} color="bg-orange-50" tooltipContent="Life insurance with a cash value component" />
+              <FinancialCard title="Long Term Care" icon={Stethoscope} color="bg-teal-50" tooltipContent="Insurance for long-term medical care" />
+              <FinancialCard title="Annuity" icon={Calendar} color="bg-pink-50" tooltipContent="Fixed sum paid annually" />
+              <FinancialCard title="Inheritance" icon={Users} color="bg-indigo-50" tooltipContent="Expected or received inheritance" />
+            </div>
+          </section>
 
           <section className="bg-gradient-to-br from-emerald-50 to-green-100 p-6 rounded-xl shadow-lg">
-          <h2 className="text-2xl font-bold mb-6 text-emerald-800">Liabilities and Assets</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {cards.map((card, index) => (
-              <TooltipProvider key={index}>
-                <Card className={`${card.color} transition-all duration-300 hover:shadow-lg hover:scale-105 relative`}>
+            <h2 className="text-2xl font-bold mb-6 text-emerald-800">Liabilities and Assets</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {cards.map((card, index) => (
+                <Card key={index} className={`${card.color} transition-all duration-300 hover:shadow-lg hover:scale-105`}>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       {card.title}
@@ -462,28 +296,10 @@ export default function Dashboard() {
                   <CardContent>
                     <div className="text-2xl font-bold">{card.value}</div>
                   </CardContent>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HelpCircle className="h-4 w-4 absolute top-2 right-2 text-gray-400 cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="w-56 p-2 bg-white rounded-md shadow-lg">
-                      <h4 className="font-semibold mb-2">{card.title} Breakdown:</h4>
-                      <ul className="space-y-1">
-                        {tooltipData[card.title]?.map((item, itemIndex) => (
-                          <li key={itemIndex} className="flex justify-between">
-                            <span>{item.label}:</span>
-                            <span>${item.amount.toLocaleString()}</span>
-                          </li>
-                        )) || <li>No data available</li>}
-                      </ul>
-                    </TooltipContent>
-                  </Tooltip>
                 </Card>
-              </TooltipProvider>
-            ))}
-          </div>
-        </section>
-
+              ))}
+            </div>
+          </section>
 
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="bg-gradient-to-br from-cyan-50 to-blue-100 transition-all duration-300 hover:shadow-lg">
@@ -526,14 +342,12 @@ export default function Dashboard() {
   )
 }
 
-
-  function RetirementPlannerFlowchart({ surveyData }) {
-    // Initialize state using survey data or defaults
-    const [myIncome, setMyIncome] = useState(surveyData?.monthlyIncome || 5000);
-    const [spouseIncome, setSpouseIncome] = useState(surveyData?.spouseMonthlyIncome || 4000);
-    const [expenses, setExpenses] = useState(surveyData?.monthlyExpenses || 3000);
-    const [totalIncome, setTotalIncome] = useState(0);
-    const [cashFlow, setCashFlow] = useState(0);
+function RetirementPlannerFlowchart() {
+  const [myIncome, setMyIncome] = useState(5000);
+  const [spouseIncome, setSpouseIncome] = useState(4000);
+  const [expenses, setExpenses] = useState(3000);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [cashFlow, setCashFlow] = useState(0);
 
   useEffect(() => {
     const newTotalIncome = myIncome + spouseIncome;
@@ -678,3 +492,4 @@ function CashFlowCard({ cashFlow }) {
     </Card>
   )
 }
+

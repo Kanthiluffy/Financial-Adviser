@@ -98,7 +98,7 @@ router.post('/loginemail', async (req, res) => {
     await user.save();
 
     // Send OTP
-    // await sendEmailReport(email, otp);
+    await sendEmailReport(email, otp);
 
     res.status(200).json({ message: 'OTP sent successfully' });
   } catch (error) {
@@ -117,10 +117,7 @@ router.post('/verifyemail', async (req, res) => {
   try {
     const user = await User.findOne({ email });
 
-    // if (!user || user.otp !== otp || user.otpExpiresAt < Date.now()) {
-    //   return res.status(400).json({ message: 'Invalid or expired OTP' });
-    // }
-    if (!user || user.otpExpiresAt < Date.now()) {
+    if (!user || user.otp !== otp || user.otpExpiresAt < Date.now()) {
       return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
 
@@ -136,10 +133,8 @@ router.post('/verifyemail', async (req, res) => {
     // Return token and admin status
     res.status(200).json({ token, userId: user._id, isAdmin: user.isAdmin, message: 'Logged in successfully' });
   } catch (error) {
-    console.error('Error verifying OTP:', error);
     res.status(500).json({ message: 'Error verifying OTP', error });
   }
-  
 });
 
 router.get('/user', authMiddleware, async (req, res) => {

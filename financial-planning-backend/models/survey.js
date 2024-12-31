@@ -60,15 +60,7 @@ const surveySchema = new mongoose.Schema({
   retirementAccounts: { type: Boolean },
   retirementAccountDetails: [{ type: String }],  // Array of selected retirement account types
   retirementContributions: { type: Number },
-  previousEmployerCurrentValue: { type: Number },
-  previousEmployerAnnualContribution: { type: Number },
-  previousEmployerMatchingAmount: { type: Number },
-  currentEmployerCurrentValue: { type: Number },
-  currentEmployerAnnualContribution: { type: Number },
-  currentEmployerMatchingAmount: { type: Number },
-  rothCurrentValue: { type: Number },
-  rothAnnualContribution: { type: Number },
-  rothMatchingAmount: { type: Number },
+
   // Life Insurance Section
   termLifeInsurance: { type: Boolean },
   termLifeInsuranceFaceAmount: { type: Number },

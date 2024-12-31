@@ -4,45 +4,6 @@ const Survey = require('../models/survey');
 const router = express.Router();
 
 
-// Fetch existing survey data for the logged-in user
-router.get('/edit', authMiddleware, async (req, res) => {
-  try {
-    const survey = await Survey.findOne({ user: req.user.id });
-
-    if (!survey) {
-      return res.status(404).json({ message: 'Survey not found for this user' });
-    }
-
-    res.status(200).json(survey);
-  } catch (error) {
-    console.error('Error fetching survey:', error);
-    res.status(500).json({ message: 'Error fetching survey data', error });
-  }
-});
-
-// Update survey data
-router.put('/edit', authMiddleware, async (req, res) => {
-  try {
-    const updatedSurvey = await Survey.findOneAndUpdate(
-      { user: req.user.id },
-      { $set: req.body }, // Assuming the frontend sends all updated fields in req.body
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedSurvey) {
-      return res.status(404).json({ message: 'Survey not found for this user' });
-    }
-
-    res.status(200).json({ message: 'Survey updated successfully', survey: updatedSurvey });
-  } catch (error) {
-    console.error('Error updating survey:', error);
-    res.status(500).json({ message: 'Error updating survey data', error });
-  }
-});
-
-
-
-
 // Submit survey data
 router.post('/submit', authMiddleware, async (req, res) => {
   const {
@@ -80,15 +41,6 @@ router.post('/submit', authMiddleware, async (req, res) => {
     emergencySavings,
     retirementAccounts,
     retirementAccountTypes, // Assuming this is an array of strings
-    previousEmployerCurrentValue,
-    previousEmployerAnnualContribution,
-    previousEmployerMatchingAmount,
-    currentEmployerCurrentValue,
-    currentEmployerAnnualContribution,
-    currentEmployerMatchingAmount,
-    rothCurrentValue,
-    rothAnnualContribution,
-    rothMatchingAmount,
     retirementAnnualContributions,
     HSA_balance,
     HSA_annualContributions,
@@ -150,15 +102,6 @@ router.post('/submit', authMiddleware, async (req, res) => {
       emergencySavings,
       retirementAccounts,
       retirementAccountTypes, // Expected as an array of strings
-      previousEmployerCurrentValue,
-      previousEmployerAnnualContribution,
-      previousEmployerMatchingAmount,
-      currentEmployerCurrentValue,
-      currentEmployerAnnualContribution,
-      currentEmployerMatchingAmount,
-      rothCurrentValue,
-      rothAnnualContribution,
-      rothMatchingAmount,
       retirementAnnualContributions,
       HSA_balance,
       HSA_annualContributions,
