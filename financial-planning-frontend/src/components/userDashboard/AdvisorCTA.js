@@ -6,7 +6,7 @@ import { PhoneCall, Calendar } from 'lucide-react';
 export default function AdvisorCTA() {
   const handleScheduleCall = () => {
     // This could be integrated with a scheduling service like Calendly
-    window.open('https://calendly.com/your-advisor', '_blank');
+    window.open('https://calendly.com/lankipalle', '_blank');
   };
 
   return (
@@ -14,7 +14,7 @@ export default function AdvisorCTA() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <PhoneCall className="h-5 w-5" />
-          Need Professional Guidance?
+          Interested in boosting your score?
         </CardTitle>
       </CardHeader>
       <CardContent>
