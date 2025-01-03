@@ -286,35 +286,39 @@ const App = () => {
             taxBracket,
             capitalGainTax,
         } = inputs;
-
+    
         let portfolioValue = initialAmount;
         let cumulativeWithdrawal = 0;
         let cumulativeTaxPaid = 0;
-
+    
         const newResults = [];
-
-        for (let year = 1; year <= numberOfYears; year++) {
+    
+        const totalYears = 100 - currentAgeHusband; // Calculate years until husband reaches 100
+    
+        for (let year = 1; year <= totalYears; year++) {
             const ageHusband = currentAgeHusband + year;
             const ageWife = currentAgeWife + year;
-
+    
+            const currentAddition = year <= numberOfYears ? annualAddition : 0; // Stop new deposits after `numberOfYears`
+    
             const growth = portfolioValue * rateOfReturn;
             const taxes = growth * (capitalGainTax / 100); // Calculate taxes based on capital gain tax
             const netGains = growth - taxes;
-
+    
             const inflationAdjustedWithdrawal = withdrawalAmount * Math.pow(1 + inflationRate / 100, year - 1);
             const taxableWithdrawal = inflationAdjustedWithdrawal * (taxBracket / 100);
-
-            portfolioValue = portfolioValue + annualAddition + netGains - inflationAdjustedWithdrawal;
-
+    
+            portfolioValue = portfolioValue + currentAddition + netGains - inflationAdjustedWithdrawal;
+    
             cumulativeWithdrawal += inflationAdjustedWithdrawal;
             cumulativeTaxPaid += taxableWithdrawal + taxes;
-
+    
             newResults.push({
                 year,
                 ageHusband,
                 ageWife,
-                newDeposit: annualAddition,
-                principal: portfolioValue - netGains - annualAddition + inflationAdjustedWithdrawal,
+                newDeposit: currentAddition,
+                principal: portfolioValue - netGains - currentAddition + inflationAdjustedWithdrawal,
                 growth: rateOfReturn * 100,
                 gains: growth,
                 taxes,
@@ -327,9 +331,10 @@ const App = () => {
                 endBalance: portfolioValue,
             });
         }
-
+    
         setResults(newResults);
     };
+    
 
     return (
         <div className="calc-container">
@@ -340,9 +345,9 @@ const App = () => {
             <div className="App">
             <ResultsSection results={results} />
             </div>
-            {/* <div className="App">
+            <div className="App">
             <GraphSection results={results} />
-            </div> */}
+            </div>
         </div>
         
     );

@@ -592,11 +592,13 @@ const MainSurvey = () => {
       delete processedData.ltcCoverageAmount;
       delete processedData.ltcMonthlyPremiums;
     }
-  
+    console.log('filtered survey:', surveyData);
     return processedData;
   };
   
   const handleSubmit = async () => {
+    console.log('Unfiltered survey:', surveyData);
+    prepareDataForSubmission(surveyData);
     const token = localStorage.getItem('token');
   
     if (!token) {
@@ -610,7 +612,8 @@ const MainSurvey = () => {
   
     try {
       const filteredData = prepareDataForSubmission(surveyData);
-  
+      console.log('Unfiltered survey:', surveyData);
+      console.log('Submitting survey:', filteredData);
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/survey/submit`,
         filteredData,
@@ -621,6 +624,7 @@ const MainSurvey = () => {
   
       if (response.status === 201) {
         console.log('Survey submitted successfully');
+        localStorage.removeItem('pendingSurvey');
         navigate('/user-dashboard'); // Navigate to the dashboard
       }
     } catch (error) {
@@ -889,7 +893,22 @@ const MainSurvey = () => {
       inputRefs.current[0].focus();
     }
   }, [currentSection]);
+  useEffect(() => {
+    // Focus the first input box when a new section renders, if available
+    if (inputRefs.current.length > 0 && inputRefs.current[0]) {
+      inputRefs.current[0].focus();
+    }
   
+    // Load existing survey data from local storage
+    const storedSurveyData = localStorage.getItem('pendingSurvey');
+    if (storedSurveyData) {
+      setSurveyData(JSON.parse(storedSurveyData));
+    }
+  }, [currentSection]);
+  useEffect(() => {
+    localStorage.setItem('pendingSurvey', JSON.stringify(surveyData));
+  }, [surveyData]);
+    
   return (
     <div className="survey-container" >
         <div className="flex-1 flex flex-col items-center px-5 py-5">

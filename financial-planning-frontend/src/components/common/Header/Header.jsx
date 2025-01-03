@@ -18,7 +18,7 @@ const Header = () => {
   }, []);
 
   // Sticky Header function
-  const isSticky = (e) => {
+  const isSticky = () => {
     const header = document.querySelector(".header-section");
     const scrollTop = window.scrollY;
     scrollTop >= 120
@@ -38,24 +38,49 @@ const Header = () => {
           </Navbar.Brand>
           {/* End Logo Section */}
 
+          <Navbar.Toggle
+            aria-controls="offcanvasNavbar"
+            onClick={toggleMenu}
+            className="navbar-toggler"
+          >
+            <i className="bi bi-list"></i>
+          </Navbar.Toggle>
+
+          <Navbar.Collapse className="justify-content-end">
+            {/* This will align the Login button to the right */}
+            <Nav className="ml-auto align-items-center">
+              <NavLink
+                className="nav-link cta-button"
+                to="/login"
+              >
+                Login
+              </NavLink>
+            </Nav>
+          </Navbar.Collapse>
+
           <Navbar.Offcanvas
-            id={`offcanvasNavbar-expand-lg`}
-            aria-labelledby={`offcanvasNavbarLabel-expand-lg`}
+            id="offcanvasNavbar"
+            aria-labelledby="offcanvasNavbarLabel"
             placement="start"
             show={open}
+            onHide={toggleMenu}
           >
             {/* Mobile Logo Section */}
-            <Offcanvas.Header>
-              <h1 className="logo">RetireRight</h1>
-              <span className="navbar-toggler ms-auto" onClick={toggleMenu}>
-                <i className="bi bi-x-lg"></i>
-              </span>
+            <Offcanvas.Header closeButton>
+              <Offcanvas.Title id="offcanvasNavbarLabel" className="logo">
+                RetireRight
+              </Offcanvas.Title>
             </Offcanvas.Header>
             {/* End Mobile Logo Section */}
 
-            <Offcanvas.Body>
-              <Nav className="justify-content-end flex-grow-1 pe-3">
-                <NavLink className="nav-link" to="/login">
+            <Offcanvas.Body className="d-lg-none">
+              {/* Mobile View Login Button */}
+              <Nav className="flex-grow-1">
+                <NavLink
+                  className="nav-link cta-button"
+                  to="/login"
+                  onClick={toggleMenu}
+                >
                   Login
                 </NavLink>
               </Nav>

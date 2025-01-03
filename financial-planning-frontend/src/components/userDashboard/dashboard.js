@@ -22,10 +22,15 @@ const generateTooltipData = (surveyData) => {
 
   return {
     "Tax Now": [
-      {
-        label: 'Taxable Assets (Stocks, CDs, Mutual Funds, ETFs, Crypto)',
-        amount: getData(data.anyTaxableAssets, data.taxableAssets?.reduce((sum, asset) => sum + asset.value, 0)),
-      },
+  ...(
+    Array.isArray(data.taxableAssets) && data.taxableAssets.length > 0
+      ? data.taxableAssets.map(asset => ({
+          label: asset.description,
+          amount: asset.value || 0,
+        }))
+      : [{ label: 'No Taxable Assets Reported', amount: 0 }]
+  ),
+
       {
         label: 'Bank Savings (for emergency funds)',
         amount: getData(true, data.emergencySavings),
@@ -60,6 +65,11 @@ const generateTooltipData = (surveyData) => {
       { label: 'Mortgage Loan', amount: getData(data.ownHome, data.homeLoanAmount) },
       { label: 'Monthly Mortgage Payment', amount: getData(data.ownHome, data.monthlyMortgagePayment) },
     ],
+    "Investment Home": [
+      { label: 'Other Real Estate Value', amount: getData(data.otherRealEstate, data.otherRealEstateValue) },
+      { label: 'Other Real Estate Loan', amount: getData(data.otherRealEstate, data.otherRealEstateLoan) },
+      { label: 'Other Real Estate Mortgage', amount: getData(data.otherRealEstate, data.otherRealEstateMortgage) },
+    ],
     "Other Debts": data.otherDebts
       ? data.otherDebtsDetails.map((debt) => ({
           label: debt.description,
@@ -69,6 +79,31 @@ const generateTooltipData = (surveyData) => {
     "Student Loans": [
       { label: 'Total Student Loan Balance', amount: getData(data.studentLoans, data.studentLoanBalance) },
     ],
+    "HSA": [
+      { label: 'Health Savings Account Balance', amount: getData(data.hasHSA, data.hsaBalance) },
+      { label: 'Annual HSA Contributions', amount: getData(data.hasHSA, data.hsaContribution) },
+    ],
+    "Term Life Insurance": [
+      { label: 'Term Life Insurance Face Amount', amount: getData(data.termLifeInsurance, data.termLifeInsuranceFaceAmount) },
+      { label: 'Coverage Period (Years)', amount: getData(data.termLifeInsurance, data.termLifeInsuranceCoveragePeriod) },
+    ],
+    "Cash Value Insurance": [
+      ...(data.cashValueLifeInsurance && Array.isArray(data.cashValueLifeInsuranceCoverage) 
+        ? data.cashValueLifeInsuranceCoverage.map(policy => ({
+            label: policy.policy,
+            amount: policy.amount,
+          }))
+        : []),
+      { label: 'Cash Surrender Value', amount: getData(data.cashValueLifeInsurance, data.cashSurrenderValue) },
+    ],
+    "Long-Term Care": [
+      { label: 'Long-Term Care Coverage Amount', amount: getData(data.longTermCareCoverage, data.ltcCoverageAmount) },
+      { label: 'Monthly Premiums', amount: getData(data.longTermCareCoverage, data.ltcMonthlyPremiums) },
+    ],
+    "Annuity": [
+      { label: 'Annuity Amount', amount: getData(data.annuityAccounts, data.annuityAmount) },
+      { label: 'Annuity Income at Retirement', amount: getData(data.annuityAccounts, data.annuityIncomeAtRetirement) },
+    ],
     "miscellaneous": [
       { label: 'Annual Travel Expenses', amount: data.annualTravelExpenses || 0 },
       { label: 'Temporary Expenses', amount: data.temporaryExpenses || 0 },
@@ -76,6 +111,11 @@ const generateTooltipData = (surveyData) => {
     ],
   };
 };
+
+
+
+
+
 
 
 const FinancialCard = ({ title, icon: Icon, color = "bg-gray-100", value = 0,tooltipData = [] }) => (
@@ -224,13 +264,7 @@ const populateCardData = (surveyData) => {
     {
       title: "Student Expenses",
       color: "bg-red-100",
-      value: surveyData.saveForCollege
-        ? `$${(
-            (surveyData.collegeFeeSupportPercentage / 100) *
-            surveyData.numberOfChildren *
-            20000 // Assuming $20,000 per child as an example
-          ).toLocaleString() || 0}`
-        : "$0",
+      value: 0,
       icon: Book,
     },
     {
@@ -472,7 +506,7 @@ export default function Dashboard() {
                         {tooltipData[card.title]?.map((item, itemIndex) => (
                           <li key={itemIndex} className="flex justify-between">
                             <span>{item.label}:</span>
-                            <span>${item.amount.toLocaleString()}</span>
+                            <span>${item.amount}</span>
                           </li>
                         )) || <li>No data available</li>}
                       </ul>
@@ -529,9 +563,9 @@ export default function Dashboard() {
 
   function RetirementPlannerFlowchart({ surveyData }) {
     // Initialize state using survey data or defaults
-    const [myIncome, setMyIncome] = useState(surveyData?.monthlyIncome || 5000);
-    const [spouseIncome, setSpouseIncome] = useState(surveyData?.spouseMonthlyIncome || 4000);
-    const [expenses, setExpenses] = useState(surveyData?.monthlyExpenses || 3000);
+    const [myIncome, setMyIncome] = useState(surveyData?.monthlyIncome || 0);
+    const [spouseIncome, setSpouseIncome] = useState(surveyData?.spouseMonthlyIncome || 0);
+    const [expenses, setExpenses] = useState(surveyData?.monthlyExpenses || 0);
     const [totalIncome, setTotalIncome] = useState(0);
     const [cashFlow, setCashFlow] = useState(0);
 

@@ -7,7 +7,7 @@ const router = express.Router();
 // Fetch existing survey data for the logged-in user
 router.get('/edit', authMiddleware, async (req, res) => {
   try {
-    const survey = await Survey.findOne({ user: req.user.id });
+    const survey = await Survey.findOne({ user: req.user.id }).sort({ updatedAt: -1 });
 
     if (!survey) {
       return res.status(404).json({ message: 'Survey not found for this user' });
@@ -19,6 +19,7 @@ router.get('/edit', authMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Error fetching survey data', error });
   }
 });
+
 
 // Update survey data
 router.put('/edit', authMiddleware, async (req, res) => {
@@ -51,25 +52,26 @@ router.post('/submit', authMiddleware, async (req, res) => {
     maritalStatus,
     spouseAge,
     hasChildren,
+    numberOfChildren,
     childrenAges,
     isRetired,
     yearsUntilRetirement,
-    isSpouseRetired,
+    spouseRetired,
     spouseYearsUntilRetirement,
     saveForCollege,
     collegeFeeSupportPercentage,
-    ownPrimaryHome,
-    loanAmountPrimaryHome,
-    currentHomeValue,
+    ownHome,
+    homeLoanAmount,
+    homeValue,
     monthlyMortgagePayment,
-    ownOtherRealEstate,
+    otherRealEstate,
     otherRealEstateValue,
-    otherRealEstateLoanAmount,
-    otherRealEstateMortgagePayment,
+    otherRealEstateLoan,
+    otherRealEstateMortgage,
     studentLoans,
     studentLoanBalance,
     otherDebts,
-    otherDebtDetails, // Assuming this is now an array of objects with fields 'description' and 'amount'
+    otherDebtsDetails, // Assuming this is now an array of objects with fields 'description' and 'amount'
     monthlyIncome,
     monthlyExpenses,
     temporaryExpenses,
@@ -79,7 +81,7 @@ router.post('/submit', authMiddleware, async (req, res) => {
     taxableAssets, // Assuming this is an array of objects with fields 'description' and 'value'
     emergencySavings,
     retirementAccounts,
-    retirementAccountTypes, // Assuming this is an array of strings
+    retirementAccountDetails, // Assuming this is an array of strings
     previousEmployerCurrentValue,
     previousEmployerAnnualContribution,
     previousEmployerMatchingAmount,
@@ -89,15 +91,14 @@ router.post('/submit', authMiddleware, async (req, res) => {
     rothCurrentValue,
     rothAnnualContribution,
     rothMatchingAmount,
-    retirementAnnualContributions,
-    HSA_balance,
-    HSA_annualContributions,
+    retirementContributions,
+
     termLifeInsurance,
-    termLifeInsuranceAmount,
-    termLifeInsurancePeriod,
-    termLifeInsuranceLivingBenefits,
+    termLifeInsuranceFaceAmount,
+    termLifeInsuranceCoveragePeriod,
+    termLifeInsuranceBenefits,
     cashValueLifeInsurance,
-    cashValueLifeInsuranceAmount,
+    cashValueLifeInsuranceCoverage,
     cashSurrenderValue,
     hasHSA,
     hsaContribution,
@@ -114,76 +115,80 @@ router.post('/submit', authMiddleware, async (req, res) => {
   } = req.body;
 
   try {
-    const survey = new Survey({
-      user: req.user.id,
-      name,
-      age,
-      maritalStatus,
-      spouseAge,
-      hasChildren,
-      childrenAges,
-      isRetired,
-      yearsUntilRetirement,
-      isSpouseRetired,
-      spouseYearsUntilRetirement,
-      saveForCollege,
-      collegeFeeSupportPercentage,
-      ownPrimaryHome,
-      loanAmountPrimaryHome,
-      currentHomeValue,
-      monthlyMortgagePayment,
-      ownOtherRealEstate,
-      otherRealEstateValue,
-      otherRealEstateLoanAmount,
-      otherRealEstateMortgagePayment,
-      studentLoans,
-      studentLoanBalance,
-      otherDebts,
-      otherDebtDetails, // Expected as an array of objects with 'description' and 'amount'
-      monthlyIncome,
-      monthlyExpenses,
-      temporaryExpenses,
-      temporaryExpenseDetails,
-      annualTravelExpenses,
-      anytaxableAssets,
-      taxableAssets, // Expected as an array of objects with 'description' and 'value'
-      emergencySavings,
-      retirementAccounts,
-      retirementAccountTypes, // Expected as an array of strings
-      previousEmployerCurrentValue,
-      previousEmployerAnnualContribution,
-      previousEmployerMatchingAmount,
-      currentEmployerCurrentValue,
-      currentEmployerAnnualContribution,
-      currentEmployerMatchingAmount,
-      rothCurrentValue,
-      rothAnnualContribution,
-      rothMatchingAmount,
-      retirementAnnualContributions,
-      HSA_balance,
-      HSA_annualContributions,
-      termLifeInsurance,
-      termLifeInsuranceAmount,
-      termLifeInsurancePeriod,
-      termLifeInsuranceLivingBenefits,
-      cashValueLifeInsurance,
-      cashValueLifeInsuranceAmount,
-      cashSurrenderValue,
-      hasHSA,
-      hsaContribution,
-      hsaBalance,
-      annuityAccounts,
-      annuityAmount,
-      annuityIncomeAtRetirement,
-      longTermCareCoverage,
-      ltcCoverageAmount,
-      ltcMonthlyPremiums,
-      spouseMonthlyIncome,
-      temporaryExpenseYears,
-      lifeInsurancePremium
-    });
+    // Use findOneAndUpdate to update if exists or create new
+    const survey = await Survey.findOneAndUpdate(
+      { user: req.user.id }, // Match condition
+      {
+        $set: {
+          name,
+          age,
+          maritalStatus,
+          spouseAge,
+          hasChildren,
+          numberOfChildren,
+          childrenAges,
+          isRetired,
+          yearsUntilRetirement,
+          spouseRetired,
+          spouseYearsUntilRetirement,
+          saveForCollege,
+          collegeFeeSupportPercentage,
+          ownHome,
+          homeValue,
+          homeLoanAmount,
+          monthlyMortgagePayment,
+          otherRealEstate,
+          otherRealEstateValue,
+          otherRealEstateLoan,
+          otherRealEstateMortgage,
+          studentLoans,
+          studentLoanBalance,
+          otherDebts,
+          otherDebtsDetails,
+          monthlyIncome,
+          monthlyExpenses,
+          temporaryExpenses,
+          temporaryExpenseDetails,
+          annualTravelExpenses,
+          anytaxableAssets,
+          taxableAssets,
+          emergencySavings,
+          retirementAccounts,
+          retirementAccountDetails,
+          previousEmployerCurrentValue,
+          previousEmployerAnnualContribution,
+          previousEmployerMatchingAmount,
+          currentEmployerCurrentValue,
+          currentEmployerAnnualContribution,
+          currentEmployerMatchingAmount,
+          rothCurrentValue,
+          rothAnnualContribution,
+          rothMatchingAmount,
+          retirementContributions,
+          termLifeInsurance,
+          termLifeInsuranceFaceAmount,
+          termLifeInsuranceCoveragePeriod,
+          termLifeInsuranceBenefits,
+          cashValueLifeInsurance,
+          cashValueLifeInsuranceCoverage,
+          cashSurrenderValue,
+          hasHSA,
+          hsaContribution,
+          hsaBalance,
+          annuityAccounts,
+          annuityAmount,
+          annuityIncomeAtRetirement,
+          longTermCareCoverage,
+          ltcCoverageAmount,
+          ltcMonthlyPremiums,
+          spouseMonthlyIncome,
+          temporaryExpenseYears,
+          lifeInsurancePremium,
+        },
+      },
+      { new: true, upsert: true } // Return updated document and create if not exists
+    );
 
-    await survey.save();
     res.status(201).json({ message: 'Survey submitted successfully', survey });
   } catch (error) {
     console.error('Error submitting survey:', error);
@@ -196,13 +201,14 @@ module.exports = router;
 
 
 
+
 // Endpoint to check if the user has completed the survey
 router.get('/status', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id; // Get the logged-in user's ID from the token
 
     // Find the user's survey
-    const survey = await Survey.findOne({ user: userId });
+    const survey = await Survey.findOne({ user: req.user.id }).sort({ updatedAt: -1 });
 
     if (survey) {
       // User has completed the survey
