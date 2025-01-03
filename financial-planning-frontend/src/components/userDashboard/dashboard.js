@@ -128,8 +128,11 @@ const FinancialCard = ({ title, icon: Icon, color = "bg-gray-100", value = 0,too
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{`$${value.toLocaleString()}`}</div>
-      </CardContent>
+  <div className="text-2xl font-bold">
+    {value !== null && value !== undefined ? `$${value.toLocaleString()}` : 'N/A'}
+  </div>
+</CardContent>
+
       <Tooltip>
         <TooltipTrigger asChild>
           <HelpCircle className="h-4 w-4 absolute top-2 right-2 text-gray-400 cursor-help" />
