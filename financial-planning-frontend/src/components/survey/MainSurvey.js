@@ -796,7 +796,7 @@ const MainSurvey = () => {
           )}
           {question.type === 'dynamicPolicyFields' && (
   <div>
-    {surveyData.policies.map((policy, index) => (
+    {surveyData.cashValueLifeInsuranceCoverage.map((policy, index) => (
       <div key={index} className="form-group policy-group">
         <input
           ref={(el) => (inputRefs.current[index] = el)} // Store ref in the array
@@ -804,8 +804,8 @@ const MainSurvey = () => {
           type="text"
           placeholder={`Policy ${index + 1} Name`}
           className="form-input policy-name"
-          value={policy.name}
-          onChange={(e) => handleDynamicFieldChange('policies', index, 'name', e.target.value)}
+          value={policy.policy}
+          onChange={(e) => handleDynamicFieldChange('cashValueLifeInsuranceCoverage', index, 'policy', e.target.value)}
         />
         <input
           ref={(el) => (inputRefs.current[index] = el)} // Store ref in the array
@@ -814,11 +814,11 @@ const MainSurvey = () => {
           placeholder={`Policy ${index + 1} Amount`}
           className="form-input policy-amount"
           value={policy.amount}
-          onChange={(e) => handleDynamicFieldChange('policies', index, 'amount', e.target.value)}
+          onChange={(e) => handleDynamicFieldChange('cashValueLifeInsuranceCoverage', index, 'amount', e.target.value)}
         />
       </div>
     ))}
-    <button className="add-button" onClick={() => handleAddField('policies', { name: '', amount: '' })}>
+    <button className="add-button" onClick={() => handleAddField('cashValueLifeInsuranceCoverage', { policy: '', amount: '' })}>
       Add More Policies
     </button>
   </div>

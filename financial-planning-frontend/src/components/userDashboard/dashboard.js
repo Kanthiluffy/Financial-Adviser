@@ -409,30 +409,34 @@ export default function Dashboard() {
           <section className="bg-gradient-to-br from-indigo-50 to-blue-100 p-6 rounded-xl shadow-lg">
   <h2 className="text-2xl font-bold mb-6 text-indigo-800">Financial Categories</h2>
   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <FinancialCard
-      title="Tax Now"
-      icon={DollarSign}
-      color="bg-blue-50"
-      value={surveyData.anytaxableAssets ? surveyData.taxableAssets.reduce((sum, asset) => sum + asset.value, 0) : 0}
-      tooltipData={tooltipData}
-    />
-    <FinancialCard
-      title="Tax Deferred"
-      icon={PiggyBank}
-      color="bg-green-50"
-      value={
-        (surveyData.retirementAccounts ? surveyData.currentEmployerCurrentValue : 0) +
-        (surveyData.previousEmployerCurrentValue || 0)
-      }
-      tooltipData={tooltipData}
-    />
-    <FinancialCard
-      title="Tax Exempt"
-      icon={Shield}
-      color="bg-yellow-50"
-      value={surveyData.rothCurrentValue || 0}
-      tooltipData={tooltipData}
-    />
+  <FinancialCard
+  title="Tax Now"
+  icon={DollarSign}
+  color="bg-blue-50"
+  value={
+    tooltipData["Tax Now"].reduce((sum, item) => sum + (item.amount || 0), 0)
+  }
+  tooltipData={tooltipData}
+/>
+<FinancialCard
+  title="Tax Deferred"
+  icon={PiggyBank}
+  color="bg-green-50"
+  value={
+    tooltipData["Tax Deferred"].reduce((sum, item) => sum + (item.amount || 0), 0)
+  }
+  tooltipData={tooltipData}
+/>
+<FinancialCard
+  title="Tax Exempt"
+  icon={Shield}
+  color="bg-yellow-50"
+  value={
+    tooltipData["Tax Exempt"].reduce((sum, item) => sum + (item.amount || 0), 0)
+  }
+  tooltipData={tooltipData}
+/>
+
     <FinancialCard
       title="HSA"
       icon={Stethoscope}
