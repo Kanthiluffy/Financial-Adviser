@@ -529,9 +529,9 @@ export default function Dashboard() {
 
   function RetirementPlannerFlowchart({ surveyData }) {
     // Initialize state using survey data or defaults
-    const [myIncome, setMyIncome] = useState(surveyData?.monthlyIncome || 5000);
-    const [spouseIncome, setSpouseIncome] = useState(surveyData?.spouseMonthlyIncome || 4000);
-    const [expenses, setExpenses] = useState(surveyData?.monthlyExpenses || 3000);
+    const [myIncome, setMyIncome] = useState(surveyData?.monthlyIncome || 0);
+    const [spouseIncome, setSpouseIncome] = useState(surveyData?.spouseMonthlyIncome || 0);
+    const [expenses, setExpenses] = useState(surveyData?.monthlyExpenses || 0);
     const [totalIncome, setTotalIncome] = useState(0);
     const [cashFlow, setCashFlow] = useState(0);
 
