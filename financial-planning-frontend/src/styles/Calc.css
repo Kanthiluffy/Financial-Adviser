@@ -1,0 +1,149 @@
+.calc-container {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    color: #333;
+    overflow-x: hidden;
+}
+
+.calc-container .App {
+    max-width: 90%;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.calc-container h1 {
+    font-size: 2em;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.calc-container .form-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.calc-container label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.calc-container input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+.calc-container .form-field {
+    margin-bottom: 20px;
+}
+
+.calc-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 12px;
+    transition: background-color 0.3s ease;
+}
+
+.calc-container button:hover {
+    background-color: #2980b9;
+}
+
+.calc-container .results-container {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+.calc-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.calc-container thead {
+    background-color: #3498db;
+    color: #fff;
+}
+
+.calc-container th,
+.calc-container td {
+    text-align: left;
+    padding: 10px;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+    font-size: 0.9em;
+}
+
+.calc-container thead th {
+    font-size: 1em;
+    text-align: center;
+}
+
+.calc-container tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.calc-container tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+@media screen and (max-width: 768px) {
+    .calc-container .form-container {
+        grid-template-columns: 1fr;
+    }
+
+    .calc-container th,
+    .calc-container td {
+        font-size: 0.85em;
+        padding: 8px;
+    }
+
+    .calc-container button {
+        font-size: 0.9em;
+    }
+}
+
+.calc-container .results-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.calc-container .chart-container {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.calc-container .chart-container h3 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.calc-container .chart-container .recharts-wrapper {
+    margin: auto;
+}

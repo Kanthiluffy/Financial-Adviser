@@ -6,7 +6,7 @@ html, body {
 }
 
 .survey-container {
-  background-image: url('../../assets/images/bg.webp');
+  background-image: url('../assets/images/bg.webp');
   background-size: cover;
   background-position: center;
   height: 100vh;

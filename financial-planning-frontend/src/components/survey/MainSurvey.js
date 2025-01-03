@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './MainSurvey.css';
+import '../../styles/MainSurvey.css';
 
 
 const surveySections = [
@@ -151,8 +151,97 @@ const surveySections = [
   {
     title: "Retirement Details",
     questions: [
-      { id: 33, type: 'yesno', label: 'Do you have retirement accounts?', field: 'retirementAccounts' },
-      { id: 34, type: 'checkbox', label: 'Please specify your retirement accounts:', field: 'retirementAccountDetails', options: [{ value: 'previousEmployer', label: 'Previous employer 401(k), IRA, SEP IRA (Pre-tax)' }, { value: 'currentEmployer', label: 'Current employer 401(k)' }, { value: 'roth', label: 'Roth 401(k), Roth IRA (Post-tax)' }], condition: (data) => data.retirementAccounts === true },
+      {
+        id: 33,
+        type: 'yesno',
+        label: 'Do you have retirement accounts?',
+        field: 'retirementAccounts',
+      },
+      {
+        id: 34,
+        type: 'checkbox',
+        label: 'Please specify your retirement accounts:',
+        field: 'retirementAccountDetails',
+        options: [
+          { value: 'previousEmployer', label: 'Previous employer 401(k), IRA, SEP IRA (Pre-tax)' },
+          { value: 'currentEmployer', label: 'Current employer 401(k)' },
+          { value: 'roth', label: 'Roth 401(k), Roth IRA (Post-tax)' }
+        ],
+        condition: (data) => data.retirementAccounts === true,
+      },
+      {
+        id: 34.1,
+        type: 'number',
+        label: 'Current value of your previous employer 401(k), IRA, SEP IRA (Pre-tax):',
+        field: 'previousEmployerCurrentValue',
+        condition: (data) => data.retirementAccountDetails?.includes('previousEmployer'),
+        validation: { required: true, errorMessage: 'Please provide the current value.' }
+      },
+      {
+        id: 34.2,
+        type: 'number',
+        label: 'Annual contribution to your previous employer 401(k), IRA, SEP IRA (Pre-tax):',
+        field: 'previousEmployerAnnualContribution',
+        condition: (data) => data.retirementAccountDetails?.includes('previousEmployer'),
+        validation: { required: true, errorMessage: 'Please provide the annual contribution.' }
+      },
+      {
+        id: 34.3,
+        type: 'number',
+        label: 'Matching amount for your previous employer 401(k), IRA, SEP IRA (Pre-tax):',
+        field: 'previousEmployerMatchingAmount',
+        condition: (data) => data.retirementAccountDetails?.includes('previousEmployer'),
+        validation: { required: true, errorMessage: 'Please provide the matching amount.' }
+      },
+      {
+        id: 34.4,
+        type: 'number',
+        label: 'Current value of your current employer 401(k):',
+        field: 'currentEmployerCurrentValue',
+        condition: (data) => data.retirementAccountDetails?.includes('currentEmployer'),
+        validation: { required: true, errorMessage: 'Please provide the current value.' }
+      },
+      {
+        id: 34.5,
+        type: 'number',
+        label: 'Annual contribution to your current employer 401(k):',
+        field: 'currentEmployerAnnualContribution',
+        condition: (data) => data.retirementAccountDetails?.includes('currentEmployer'),
+        validation: { required: true, errorMessage: 'Please provide the annual contribution.' }
+      },
+      {
+        id: 34.6,
+        type: 'number',
+        label: 'Matching amount for your current employer 401(k):',
+        field: 'currentEmployerMatchingAmount',
+        condition: (data) => data.retirementAccountDetails?.includes('currentEmployer'),
+        validation: { required: true, errorMessage: 'Please provide the matching amount.' }
+      },
+      {
+        id: 34.7,
+        type: 'number',
+        label: 'Current value of your Roth 401(k), Roth IRA (Post-tax):',
+        field: 'rothCurrentValue',
+        condition: (data) => data.retirementAccountDetails?.includes('roth'),
+        validation: { required: true, errorMessage: 'Please provide the current value.' }
+      },
+      {
+        id: 34.8,
+        type: 'number',
+        label: 'Annual contribution to your Roth 401(k), Roth IRA (Post-tax):',
+        field: 'rothAnnualContribution',
+        condition: (data) => data.retirementAccountDetails?.includes('roth'),
+        validation: { required: true, errorMessage: 'Please provide the annual contribution.' }
+      },
+      {
+        id: 34.9,
+        type: 'number',
+        label: 'Matching amount for your Roth 401(k), Roth IRA (Post-tax):',
+        field: 'rothMatchingAmount',
+        condition: (data) => data.retirementAccountDetails?.includes('roth'),
+        validation: { required: true, errorMessage: 'Please provide the matching amount.' }
+      },
+      
       { id: 35, type: 'number', label: 'What is the current cash surrender value of your life insurance plans?', field: 'cashSurrenderValue', validation: { required: true, errorMessage: 'Please provide the cash surrender value of your life insurance if applicable.' }}
     ],
   },
@@ -250,6 +339,16 @@ const MainSurvey = () => {
     // Retirement Details Section
     retirementAccounts: true, 
     retirementAccountDetails: [], // Initialize as empty array for checkboxes
+    previousEmployerCurrentValue: '',
+    previousEmployerAnnualContribution: '',
+    previousEmployerMatchingAmount: '',
+    currentEmployerCurrentValue: '',
+    currentEmployerAnnualContribution: '',
+    currentEmployerMatchingAmount: '',
+    rothCurrentValue: '',
+    rothAnnualContribution: '',
+    rothMatchingAmount: '',
+
     
     // Added fields based on surveySections structure
     retirementContributions: '',
@@ -411,11 +510,97 @@ const MainSurvey = () => {
   //     setIsSubmitting(false);
   //   }
   // };
+  const prepareDataForSubmission = (data) => {
+    const processedData = { ...data };
+  
+    // Filter based on boolean flags
+    if (!data.hasChildren) {
+      delete processedData.numberOfChildren;
+      delete processedData.childrenAges;
+    }
+  
+    if (!data.isRetired) {
+      delete processedData.yearsUntilRetirement;
+    }
+  
+    if (!data.spouseRetired) {
+      delete processedData.spouseYearsUntilRetirement;
+    }
+  
+    if (!data.saveForCollege) {
+      delete processedData.collegeFeeSupportPercentage;
+    }
+  
+    if (!data.ownHome) {
+      delete processedData.homeLoanAmount;
+      delete processedData.homeValue;
+      delete processedData.monthlyMortgagePayment;
+    }
+  
+    if (!data.otherRealEstate) {
+      delete processedData.otherRealEstateValue;
+      delete processedData.otherRealEstateLoan;
+      delete processedData.otherRealEstateMortgage;
+    }
+  
+    if (!data.studentLoans) {
+      delete processedData.studentLoanBalance;
+    }
+  
+    if (!data.otherDebts) {
+      delete processedData.otherDebtsDetails;
+    }
+  
+    if (!data.anytaxableAssets) {
+      delete processedData.taxableAssets;
+    }
+  
+    if (!data.retirementAccounts) {
+      delete processedData.retirementAccountDetails;
+      delete processedData.previousEmployerCurrentValue;
+      delete processedData.previousEmployerAnnualContribution;
+      delete processedData.previousEmployerMatchingAmount;
+      delete processedData.currentEmployerCurrentValue;
+      delete processedData.currentEmployerAnnualContribution;
+      delete processedData.currentEmployerMatchingAmount;
+      delete processedData.rothCurrentValue;
+      delete processedData.rothAnnualContribution;
+      delete processedData.rothMatchingAmount;
+    }
+  
+    if (!data.hasHSA) {
+      delete processedData.hsaContribution;
+      delete processedData.hsaBalance;
+    }
+  
+    if (!data.annuityAccounts) {
+      delete processedData.annuityAmount;
+      delete processedData.annuityIncomeAtRetirement;
+    }
+  
+    if (!data.termLifeInsurance) {
+      delete processedData.termLifeInsuranceFaceAmount;
+      delete processedData.termLifeInsuranceCoveragePeriod;
+      delete processedData.termLifeInsuranceBenefits;
+    }
+  
+    if (!data.cashValueLifeInsurance) {
+      delete processedData.cashValueLifeInsuranceCoverage;
+    }
+  
+    if (!data.longTermCareCoverage) {
+      delete processedData.ltcCoverageAmount;
+      delete processedData.ltcMonthlyPremiums;
+    }
+  
+    return processedData;
+  };
+  
   const handleSubmit = async () => {
     const token = localStorage.getItem('token');
   
     if (!token) {
-      // Save survey data and navigate to login if no token exists
+      // Save pending survey data and redirect to login
       localStorage.setItem('pendingSurvey', JSON.stringify(surveyData));
       navigate('/login');
       return;
@@ -424,38 +609,19 @@ const MainSurvey = () => {
     setIsSubmitting(true);
   
     try {
-      // Verify if the token is valid
-      const userCheckResponse = await axios.get(process.env.REACT_APP_API_URL+'/api/auth/user', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const filteredData = prepareDataForSubmission(surveyData);
   
-      if (userCheckResponse.status === 200) {
-        // If user is already logged in, navigate to the dashboard
-        navigate('/user-dashboard');
-        return;
-      }
-    } catch (error) {
-      if (error.response && error.response.status === 401) {
-        // Token is invalid or expired
-        localStorage.removeItem('token');
-        localStorage.setItem('pendingSurvey', JSON.stringify(surveyData));
-        navigate('/login');
-        return;
-      }
-    }
-  
-    // If token is valid and survey submission is required
-    try {
       const response = await axios.post(
-        process.env.REACT_APP_API_URL+'/api/survey/submit',
-        surveyData,
+        `${process.env.REACT_APP_API_URL}/api/survey/submit`,
+        filteredData,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+  
       if (response.status === 201) {
         console.log('Survey submitted successfully');
-        navigate('/user-dashboard'); // Navigate to dashboard after successful submission
+        navigate('/user-dashboard'); // Navigate to the dashboard
       }
     } catch (error) {
       console.error('Error submitting survey:', error);
@@ -464,8 +630,31 @@ const MainSurvey = () => {
     }
   };
   
+  const inputRefs = useRef([]);
+
+  const handleKeyDown = (e, currentIndex) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+  
+      // Check if the current input box is the last one in the section
+      if (currentIndex < inputRefs.current.length - 1) {
+        // Focus the next input box if it exists
+        if (inputRefs.current[currentIndex + 1]) {
+          inputRefs.current[currentIndex + 1].focus();
+        }
+      } else if (currentSection >= surveySections.length - 1) {
+        // Submit the form if it's the last section
+        handleSubmit();
+      } else {
+        // Trigger the "Next" button for the next section
+        handleNext();
+      }
+    }
+  };
+  
   const renderQuestions = () => {
-    return surveySections[currentSection].questions.map((question) => {
+    inputRefs.current = []; // Clear refs before rendering
+    return surveySections[currentSection].questions.map((question, index) => {
       if (question.condition && !question.condition(surveyData)) return null;
 
       return (
@@ -475,6 +664,8 @@ const MainSurvey = () => {
           {/* Handle text input */}
         {question.type === 'nametext' && (
           <input
+            ref={(el) => (inputRefs.current[index] = el)} // Store ref in the array
+            onKeyDown={(e) => handleKeyDown(e, index)} // Handle Enter key
             type="text"
             className={`form-input ${validationErrors[question.field] ? 'input-error' : ''}`}
             value={surveyData[question.field]}
@@ -483,6 +674,8 @@ const MainSurvey = () => {
         )}
           {question.type === 'number' && (
             <input
+              ref={(el) => (inputRefs.current[index] = el)} // Store ref in the array
+              onKeyDown={(e) => handleKeyDown(e, index)} // Handle Enter key
               type="number"
               className={`form-input ${validationErrors[question.field] ? 'input-error' : ''}`}
               value={surveyData[question.field]}
@@ -494,6 +687,8 @@ const MainSurvey = () => {
             question.options.map((option) => (
               <label key={option.value} className="radio-label">
                 <input
+                  ref={(el) => (inputRefs.current[index] = el)} // Store ref in the array
+                  onKeyDown={(e) => handleKeyDown(e, index)} // Handle Enter key
                   type="radio"
                   name={question.field}
                   value={option.value}
@@ -527,6 +722,8 @@ const MainSurvey = () => {
             {question.options.map((option) => (
               <label key={option.value} className="checkbox-label">
                 <input
+                  ref={(el) => (inputRefs.current[index] = el)} // Store ref in the array
+                  onKeyDown={(e) => handleKeyDown(e, index)} // Handle Enter key
                   type="checkbox"
                   value={option.value}
                   checked={surveyData[question.field]?.includes(option.value)}
@@ -553,6 +750,8 @@ const MainSurvey = () => {
       <div key={index} className="form-group">
         <label className="form-label">{`Child ${index + 1}'s age`}</label>
         <input
+          ref={(el) => (inputRefs.current[index] = el)} // Store ref in the array
+          onKeyDown={(e) => handleKeyDown(e, index)} // Handle Enter key
           type="number"
           className={`form-input ${validationErrors[`childrenAges${index}`] ? 'input-error' : ''}`}
           value={surveyData.childrenAges[index] || ''} // Direct access to number value
@@ -569,6 +768,8 @@ const MainSurvey = () => {
               {surveyData.otherDebtsDetails.map((debt, index) => (
                 <div key={index} className="form-group">
                   <input
+                    ref={(el) => (inputRefs.current[index] = el)} // Store ref in the array
+                    onKeyDown={(e) => handleKeyDown(e, index)} // Handle Enter key
                     type="text"
                     placeholder={`Debt ${index + 1} Description`}
                     className="form-input"
@@ -576,6 +777,8 @@ const MainSurvey = () => {
                     onChange={(e) => handleDynamicFieldChange('otherDebtsDetails', index, 'description', e.target.value)}
                   />
                   <input
+                    ref={(el) => (inputRefs.current[index] = el)} // Store ref in the array
+                    onKeyDown={(e) => handleKeyDown(e, index)} // Handle Enter key
                     type="number"
                     placeholder={`Debt ${index + 1} Amount`}
                     className="form-input"
@@ -592,6 +795,8 @@ const MainSurvey = () => {
     {surveyData.policies.map((policy, index) => (
       <div key={index} className="form-group policy-group">
         <input
+          ref={(el) => (inputRefs.current[index] = el)} // Store ref in the array
+          onKeyDown={(e) => handleKeyDown(e, index)} // Handle Enter key
           type="text"
           placeholder={`Policy ${index + 1} Name`}
           className="form-input policy-name"
@@ -599,6 +804,8 @@ const MainSurvey = () => {
           onChange={(e) => handleDynamicFieldChange('policies', index, 'name', e.target.value)}
         />
         <input
+          ref={(el) => (inputRefs.current[index] = el)} // Store ref in the array
+          onKeyDown={(e) => handleKeyDown(e, index)} // Handle Enter key
           type="number"
           placeholder={`Policy ${index + 1} Amount`}
           className="form-input policy-amount"
@@ -618,6 +825,8 @@ const MainSurvey = () => {
     {surveyData.taxableAssets.map((asset, index) => (
       <div key={index} className="form-group asset-group">
         <input
+          ref={(el) => (inputRefs.current[index] = el)} // Store ref in the array
+          onKeyDown={(e) => handleKeyDown(e, index)} // Handle Enter key
           type="text"
           placeholder={`Asset ${index + 1} Description`}
           className={`form-input ${
@@ -636,6 +845,8 @@ const MainSurvey = () => {
           )}
 
         <input
+          ref={(el) => (inputRefs.current[index] = el)} // Store ref in the array
+          onKeyDown={(e) => handleKeyDown(e, index)} // Handle Enter key
           type="number"
           placeholder={`Asset ${index + 1} Value`}
           className={`form-input ${
@@ -672,7 +883,13 @@ const MainSurvey = () => {
       );
     });
   };
-
+  useEffect(() => {
+    // Focus the first input box when a new section renders, if available
+    if (inputRefs.current.length > 0 && inputRefs.current[0]) {
+      inputRefs.current[0].focus();
+    }
+  }, [currentSection]);
+  
   return (
     <div className="survey-container" >
         <div className="flex-1 flex flex-col items-center px-5 py-5">

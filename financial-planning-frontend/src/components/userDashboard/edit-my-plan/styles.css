@@ -1,0 +1,29 @@
+.custom-radio {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid green;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    margin-right: 8px;
+  }
+  
+  .custom-radio:checked {
+    background-color: green;
+    border-color: green;
+  }
+  
+  .flex {
+    display: flex;
+  }
+  
+  .items-center {
+    align-items: center;
+  }
+  
+  .space-x-2 > * + * {
+    margin-left: 8px;
+  }
+  
